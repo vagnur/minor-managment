@@ -1,0 +1,20 @@
+{
+    "template_path": "templates/molde_decano.docx",
+    "base_output_folder": "output/aceptacion",
+    "output_filename_pattern": "ingreso_minor_ciencia_datos_{semestre}_{anio}.docx",
+    "table_headers": [
+        "Nº",
+        "RUN",
+        "DV",
+        "APELLIDOS",
+        "NOMBRES",
+        "CARRERA DE ORIGEN",
+        "FACULTAD"
+    ],
+    "column_mapping": {
+        "RUT": "RUT",
+        "Nombre Estudiante": "NombreEstudiante",
+        "Carrera a la que pertenece": "Carrera",
+        "Facultad a la que pertenece": "Facultad"
+    }
+}

@@ -1,8 +1,7 @@
 import customtkinter as ctk
 
 from app.gui.navigation import NavigationPanel
-from app.gui.home_view import HomeView
-from app.modules.postulacion.ui import PostulacionFrame
+from app.core.module_registry import MODULES
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
@@ -52,7 +51,7 @@ class MainWindow(ctk.CTk):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        self.navigation = NavigationPanel(self, self.show_view)
+        self.navigation = NavigationPanel(self, self.show_view, MODULES)
         self.navigation.grid(row=0, column=0, sticky="nsew")
 
         self.content_frame = ctk.CTkFrame(self, corner_radius=0)
@@ -60,20 +59,27 @@ class MainWindow(ctk.CTk):
         self.content_frame.grid_columnconfigure(0, weight=1)
         self.content_frame.grid_rowconfigure(0, weight=1)
 
-        self.views = {
-            "home": HomeView(self.content_frame),
-            "postulacion": PostulacionFrame(self.content_frame),
-            "aceptacion": PlaceholderView(self.content_frame, "Aceptación"),
-            "actualizacion": PlaceholderView(self.content_frame, "Actualización de datos"),
-            "filtrado": PlaceholderView(self.content_frame, "Filtrado"),
-            "inscripcion": PlaceholderView(self.content_frame, "Inscripción"),
-            "notas": PlaceholderView(self.content_frame, "Notas"),
-            "finalizados": PlaceholderView(self.content_frame, "Finalizados"),
-        }
+        self.views = self._build_views()
 
         self.current_view = None
         self.show_view("home")
         self.navigation.highlight_selected("home")
+
+    def _build_views(self):
+        views = {}
+
+        for module in MODULES:
+            key = module["key"]
+            label = module["label"]
+            view_class = module["view_class"]
+            enabled = module["enabled"]
+
+            if enabled and view_class is not None:
+                views[key] = view_class(self.content_frame)
+            else:
+                views[key] = PlaceholderView(self.content_frame, label)
+
+        return views
 
     def show_view(self, key: str):
         if self.current_view is not None:
