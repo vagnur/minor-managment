@@ -25,3 +25,20 @@ y el versionado es de tipo semántico.
 - README inicial del proyecto
 - Archivo requirements.txt
 - Organización modular del código
+
+## v0.2 - 2026-03-11
+
+### Nuevo
+- Implementación del módulo de Aceptación
+- Generación automática de documento Word institucional de ingreso al Minor
+
+### Mejoras
+- Mejora en formato de tablas DOCX mediante clonación de filas modelo
+- Heurística mejorada para separación de nombres completos
+- Normalización de facultades
+- Generación de texto institucional de semestre
+- Validaciones adicionales de plantilla y Excel
+
+### Infraestructura
+- Registro centralizado de módulos
+- Mejor organización modular del proyecto
