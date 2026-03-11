@@ -1,4 +1,4 @@
-# Minor Management Tools
+# Minor Management Toolsgit log --oneline --decorate
 
 Herramienta interna para gestionar los procesos operativos del Minor en Ciencia de Datos.
 
