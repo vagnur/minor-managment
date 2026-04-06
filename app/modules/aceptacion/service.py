@@ -12,8 +12,6 @@ from app.core.validation_utils import (
 )
 from app.core.docx_utils import (
     find_table_by_headers,
-    replace_text_in_paragraphs,
-    replace_text_in_tables,
     clone_last_row,
     clear_row_text,
     set_cell_no_wrap,
@@ -77,17 +75,14 @@ def format_semestre_texto(semestre: str, anio: str) -> str:
 
 def split_full_name(full_name: str) -> tuple[str, str, str | None]:
     """
+    Regla usada por el módulo:
+    - los últimos 2 tokens son apellidos
+    - todo lo anterior corresponde a nombres
+
     Retorna:
     - apellidos
     - nombres
     - warning opcional
-
-    Heurística orientada a nombres chilenos usando una sola columna:
-    - 1 palabra: nombre único, apellidos vacíos
-    - 2 palabras: 1 nombre + 1 apellido (advertencia)
-    - 3 palabras: 1 nombre + 2 apellidos
-    - 4 palabras: 2 nombres + 2 apellidos
-    - 5 o más: todos los nombres salvo los últimos 2 apellidos
     """
     full_name = " ".join(safe_str(full_name).split())
     parts = full_name.split()
@@ -95,43 +90,15 @@ def split_full_name(full_name: str) -> tuple[str, str, str | None]:
     if len(parts) == 0:
         raise ValueError("Nombre vacío.")
 
-    compound_starts = {"Mc", "Mac", "De", "Del", "Van", "Von", "San", "Santa"}
+    if len(parts) < 3:
+        warning = f"Nombre con formato no esperado: '{full_name}'"
+        if len(parts) == 1:
+            return "", parts[0], warning
+        return parts[-1], parts[0], warning
 
-    if len(parts) == 1:
-        nombres = parts[0]
-        apellidos = ""
-        warning = f"Nombre con una sola palabra: '{full_name}'"
-        return apellidos, nombres, warning
-
-    if len(parts) == 2:
-        nombres = parts[0]
-        apellidos = parts[1]
-        warning = f"Nombre con dos palabras, formato no estándar: '{full_name}'"
-        return apellidos, nombres, warning
-
-    if len(parts) == 3:
-        nombres = parts[0]
-        apellidos = " ".join(parts[1:])
-        return apellidos, nombres, None
-
-    if len(parts) == 4:
-        nombres = " ".join(parts[:2])
-        apellidos = " ".join(parts[2:])
-        return apellidos, nombres, None
-
-    # 5 o más palabras
-    if parts[-2] in compound_starts:
-        apellidos = " ".join(parts[-2:])
-        nombres = " ".join(parts[:-2])
-    elif len(parts) >= 6 and parts[-3] in compound_starts:
-        apellidos = " ".join(parts[-3:])
-        nombres = " ".join(parts[:-3])
-    else:
-        apellidos = " ".join(parts[-2:])
-        nombres = " ".join(parts[:-2])
-
-    warning = f"Nombre con formato no estándar interpretado automáticamente: '{full_name}'"
-    return apellidos, nombres, warning
+    apellidos = " ".join(parts[-2:])
+    nombres = " ".join(parts[:-2])
+    return apellidos, nombres, None
 
 
 def build_output_filename(config: dict, semestre: str, anio: str) -> str:
@@ -180,12 +147,36 @@ def validate_template_structure(doc, config: dict):
     return table
 
 
+def replace_text_in_run_preserving_format(doc, replacements: dict):
+    """
+    Reemplaza placeholders recorriendo runs para no perder formato
+    (negritas, cursivas, etc.).
+    """
+    def replace_in_paragraph(paragraph):
+        for run in paragraph.runs:
+            original = run.text
+            updated = original
+            for old, new in replacements.items():
+                if old in updated:
+                    updated = updated.replace(old, new)
+            if updated != original:
+                run.text = updated
+
+    for paragraph in doc.paragraphs:
+        replace_in_paragraph(paragraph)
+
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    replace_in_paragraph(paragraph)
+
+
 def fill_acceptance_table(table, df, logger=None):
     warnings = []
 
     set_table_fixed_layout(table)
 
-    # Se asume que la última fila de la tabla en la plantilla es la fila modelo vacía
     for idx, (_, row) in enumerate(df.iterrows(), start=1):
         rut = safe_str(row["RUT"])
         nombre = safe_str(row["NombreEstudiante"])
@@ -211,12 +202,10 @@ def fill_acceptance_table(table, df, logger=None):
         new_row.cells[5].text = carrera
         new_row.cells[6].text = facultad
 
-        # Evitar cortes innecesarios
-        set_cell_no_wrap(new_row.cells[0])  # Nº
-        set_cell_no_wrap(new_row.cells[1])  # RUN
-        set_cell_no_wrap(new_row.cells[2])  # DV
+        set_cell_no_wrap(new_row.cells[0])
+        set_cell_no_wrap(new_row.cells[1])
+        set_cell_no_wrap(new_row.cells[2])
 
-    # Eliminar la fila modelo original si quedó al final
     if len(table.rows) > 1:
         last_row = table.rows[-1]
         row_text = "".join(cell.text.strip() for cell in last_row.cells)
@@ -257,8 +246,7 @@ def process_aceptacion(
         "INICIALES_COORDINADOR_MINOR": safe_str(iniciales_coordinador),
     }
 
-    replace_text_in_paragraphs(doc, replacements)
-    replace_text_in_tables(doc, replacements)
+    replace_text_in_run_preserving_format(doc, replacements)
 
     warnings = fill_acceptance_table(table, df, logger=log)
 
