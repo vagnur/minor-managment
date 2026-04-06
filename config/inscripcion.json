@@ -1,0 +1,141 @@
+{
+    "base_output_folder": "output/inscripcion",
+    "common_column_mapping": {
+        "Marca temporal": "Fecha",
+        "Dirección de correo electrónico": "Correo",
+        "Primer Nombre": "PrimerNombre",
+        "Segundo Nombre": "SegundoNombre",
+        "Apellido paterno": "ApellidoPaterno",
+        "Apellido materno": "ApellidoMaterno",
+        "RUT": "RUT",
+        "Correo institucional": "CorreoInstitucional",
+        "Carrera a la que pertenece": "Carrera",
+        "Nombre y apellido de su Jefe Carrera": "JefeCarrera",
+        "Correo electrónico de su Jefe de Carrera": "CorreoJefeCarrera",
+        "Duración de la carrera": "DuracionCarrera",
+        "Avance curricular": "AvanceCurricular",
+        "Facultad a la que pertenece": "Facultad",
+        "Indique asignatura que desea inscribir": "AsignaturaInscrita"
+    },
+    "subjects": {
+        "FPpCD": {
+            "sheet_name": "FPpCD",
+            "display_name": "Fundamentos de Programación para Ciencia de Datos",
+            "template_path": "templates/molde_inscripcion.docx",
+            "has_catedra": true,
+            "has_lab": true,
+            "column_mapping": {
+                "Seleccione el o los horarios de cátedra a los cuales puede asistir": "HorariosCatedra",
+                "Seleccione el horario de cátedra al cual puede asistir": "HorariosCatedra",
+                "Seleccione el o los horarios de laboratorio a los cuales puede asistir": "HorariosLaboratorio",
+                "Seleccione el horario de laboratorio al cual puede asistir": "HorariosLaboratorio",
+                "Indique todos los horarios disponibles en los cuales podría participar en la asignatura, esto es para hacer un catastro entre aquellas/os estudiantes que no pueden participar en el Minor debido a topes de horarios. Nos permite ver posibilidades de solicitar una nueva coordinación en caso de haber demanda suficiente": "HorariosDisponibles"
+            },
+            "horarios_catedra_field": "HorariosCatedra",
+            "horarios_lab_field": "HorariosLaboratorio",
+            "horarios_disponibles_field": "HorariosDisponibles",
+            "horarios_catedra": [
+                "L3-L4",
+                "M3-M4"
+            ],
+            "horarios_lab": [
+                "J1-J2",
+                "V1-V2"
+            ]
+        },
+        "ECeI": {
+            "sheet_name": "ECeI",
+            "display_name": "Estadística Computacional e Inferencial",
+            "template_path": "templates/molde_inscripcion.docx",
+            "has_catedra": true,
+            "has_lab": true,
+            "column_mapping": {
+                "Seleccione el o los horarios de cátedra a los cuales puede asistir": "HorariosCatedra",
+                "Seleccione el horario de cátedra al cual puede asistir": "HorariosCatedra",
+                "Seleccione el o los horarios de laboratorio a los cuales puede asistir": "HorariosLaboratorio",
+                "Seleccione el horario de laboratorio al cual puede asistir": "HorariosLaboratorio",
+                "Indique todos los horarios disponibles en los cuales podría participar en la asignatura, esto es para hacer un catastro entre aquellas/os estudiantes que no pueden participar en el Minor debido a topes de horarios. Nos permite ver posibilidades de solicitar una nueva coordinación en caso de haber demanda suficiente": "HorariosDisponibles"
+            },
+            "horarios_catedra_field": "HorariosCatedra",
+            "horarios_lab_field": "HorariosLaboratorio",
+            "horarios_disponibles_field": "HorariosDisponibles",
+            "horarios_catedra": [
+                "L5-L6",
+                "M5-M6"
+            ],
+            "horarios_lab": [
+                "J3-J4",
+                "V3-V4"
+            ]
+        },
+        "TIC I": {
+            "sheet_name": "TIC I",
+            "display_name": "Técnicas de Inteligencia Computacional I",
+            "template_path": "templates/molde_inscripcion.docx",
+            "has_catedra": true,
+            "has_lab": true,
+            "column_mapping": {
+                "Seleccione el o los horarios de cátedra a los cuales puede asistir": "HorariosCatedra",
+                "Seleccione el horario de cátedra al cual puede asistir": "HorariosCatedra",
+                "Seleccione el o los horarios de laboratorio a los cuales puede asistir": "HorariosLaboratorio",
+                "Seleccione el horario de laboratorio al cual puede asistir": "HorariosLaboratorio",
+                "Indique todos los horarios disponibles en los cuales podría participar en la asignatura, esto es para hacer un catastro entre aquellas/os estudiantes que no pueden participar en el Minor debido a topes de horarios. Nos permite ver posibilidades de solicitar una nueva coordinación en caso de haber demanda suficiente": "HorariosDisponibles"
+            },
+            "horarios_catedra_field": "HorariosCatedra",
+            "horarios_lab_field": "HorariosLaboratorio",
+            "horarios_disponibles_field": "HorariosDisponibles",
+            "horarios_catedra": [
+                "L7 W7",
+                "M7 J7"
+            ],
+            "horarios_lab": [
+                "L7 W7",
+                "M3 W2",
+                "J7 V6"
+            ]
+        },
+        "TIC II": {
+            "sheet_name": "TIC II",
+            "display_name": "Técnicas de Inteligencia Computacional II",
+            "template_path": "templates/molde_inscripcion.docx",
+            "has_catedra": true,
+            "has_lab": true,
+            "column_mapping": {
+                "Seleccione el o los horarios de cátedra a los cuales puede asistir": "HorariosCatedra",
+                "Seleccione el horario de cátedra al cual puede asistir": "HorariosCatedra",
+                "Seleccione el o los horarios de laboratorio a los cuales puede asistir": "HorariosLaboratorio",
+                "Seleccione el horario de laboratorio al cual puede asistir": "HorariosLaboratorio",
+                "Indique todos los horarios disponibles en los cuales podría participar en la asignatura, esto es para hacer un catastro entre aquellas/os estudiantes que no pueden participar en el Minor debido a topes de horarios. Nos permite ver posibilidades de solicitar una nueva coordinación en caso de haber demanda suficiente": "HorariosDisponibles"
+            },
+            "horarios_catedra_field": "HorariosCatedra",
+            "horarios_lab_field": "HorariosLaboratorio",
+            "horarios_disponibles_field": "HorariosDisponibles",
+            "horarios_catedra": [
+                "M7 J7"
+            ],
+            "horarios_lab": [
+                "L7 V6"
+            ]
+        },
+        "TAAA": {
+            "sheet_name": "TAAA",
+            "display_name": "Taller de Aprendizaje Automático Aplicado",
+            "template_path": "templates/molde_inscripcion_TAAA.docx",
+            "has_catedra": false,
+            "has_lab": true,
+            "column_mapping": {
+                "Seleccione el o los horarios de laboratorio a los cuales puede asistir": "HorariosLaboratorio",
+                "Seleccione el horario de laboratorio al cual puede asistir": "HorariosLaboratorio",
+                "Indique todos los horarios disponibles en los cuales podría participar en la asignatura, esto es para hacer un catastro entre aquellas/os estudiantes que no pueden participar en el Minor debido a topes de horarios. Nos permite ver posibilidades de solicitar una nueva coordinación en caso de haber demanda suficiente": "HorariosDisponibles"
+            },
+            "horarios_catedra_field": "",
+            "horarios_lab_field": "HorariosLaboratorio",
+            "horarios_disponibles_field": "HorariosDisponibles",
+            "horarios_catedra": [],
+            "horarios_lab": [
+                "L7 L8 W7 W8",
+                "M7 M8 J7 J8"
+            ]
+        }
+    }
+}

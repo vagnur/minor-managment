@@ -13,6 +13,9 @@ __pycache__/
 # Output generado por el programa
 output/
 
+# Datos de ejemplo
+datos_ejemplo/
+
 # Config opcional local
 config/*.local.json
 

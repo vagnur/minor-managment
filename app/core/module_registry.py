@@ -1,6 +1,7 @@
 from app.gui.home_view import HomeView
 from app.modules.postulacion.ui import PostulacionFrame
 from app.modules.aceptacion.ui import AceptacionFrame
+from app.modules.inscripcion.ui import InscripcionFrame
 
 
 MODULES = [
@@ -37,8 +38,8 @@ MODULES = [
     {
         "key": "inscripcion",
         "label": "Inscripción",
-        "view_class": None,
-        "enabled": False,
+        "view_class": InscripcionFrame,
+        "enabled": True,
     },
     {
         "key": "notas",
