@@ -1,62 +1,82 @@
-# Minor Management Toolsgit log --oneline --decorate
+# Minor Management Tools
 
-Herramienta interna para gestionar los procesos operativos del Minor en Ciencia de Datos.
+Herramienta interna para la gestión operativa del Minor en Ciencia de Datos (USACH).
 
-El objetivo del proyecto es centralizar distintos scripts utilizados en la coordinación del minor dentro de una sola aplicación con interfaz gráfica, modular y mantenible.
+El sistema centraliza y automatiza procesos clave del Minor, reemplazando scripts dispersos por una aplicación modular con interfaz gráfica.
 
 ---
 
-# Estado del proyecto
+## Estado del proyecto
 
-Versión actual: v0.2 (en desarrollo)
+Versión actual: v0.3 (en desarrollo)
 
 Módulos implementados:
-
 - Postulación
 - Aceptación
+- Inscripción
 
-Módulos planificados:
-
+Módulos en desarrollo / mejora:
 - Filtrado
 - Actualización de datos
-- Inscripción
 - Procesamiento de notas
 - Identificación de finalizados
 
 ---
 
-# Funcionalidad actual
+## Descripción general
 
-## Postulación
-- lectura de Excel consolidado
-- generación automática de formularios Word
-- creación de carpetas por carrera
-- validaciones de columnas
+La herramienta permite procesar información proveniente de formularios (Google Forms) en formato Excel y generar automáticamente documentos institucionales en Word (.docx), reduciendo significativamente el trabajo manual de la coordinación del Minor.
 
-## Aceptación
-- lectura de Excel de estudiantes aceptados
-- generación automática del documento institucional de ingreso
-- normalización de RUT
-- heurística de separación de nombres
-- mejora de formato de tabla DOCX
+Cada módulo responde a una etapa del flujo real del programa:
+- Postulación → generación de formularios por estudiante
+- Aceptación → consolidación de estudiantes aceptados
+- Inscripción → formalización de asignaturas por estudiante
 
 ---
 
-# Tecnologías utilizadas
+## Funcionalidades principales
 
-- Python
-- CustomTkinter
-- Pandas
-- python-docx
-- openpyxl
+### Postulación
+- procesamiento de Excel consolidado desde Google Forms
+- generación de formularios individuales en Word
+- organización automática por carrera
+- validación de estructura de datos
+
+### Aceptación
+- generación de documento institucional de aceptación
+- normalización de nombres y RUT
+- consolidación de estudiantes en tabla única
+- compatibilidad con formato institucional
+
+### Inscripción
+- procesamiento por asignatura desde Excel con múltiples hojas
+- generación de formularios de inscripción en Word
+- soporte para distintas estructuras (caso especial TAAA)
+- manejo dinámico de horarios (cátedra / laboratorio)
+- generación automática de tablas con formato consistente
 
 ---
 
-# Estructura del proyecto
+## Uso general
 
-app/
-core/
-gui/
-modules/
-config/
-output/
+1. Exportar respuestas de Google Forms a Excel  
+2. Seleccionar el módulo correspondiente en la aplicación  
+3. Configurar parámetros (semestre, fecha, asignaturas)  
+4. Ejecutar el proceso  
+5. Revisar documentos generados en carpeta de salida  
+
+---
+
+## Requisitos
+
+- Python 3.10+
+- Dependencias principales:
+  - pandas
+  - python-docx
+  - openpyxl
+  - customtkinter
+
+Instalación sugerida:
+
+```bash
+pip install -r requirements.txt
