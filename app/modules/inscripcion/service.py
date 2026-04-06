@@ -1,20 +1,21 @@
 from pathlib import Path
+
 import pandas as pd
 from docx import Document
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT, WD_BREAK
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 
 from app.core.file_utils import ensure_folder, sanitize_filename, safe_str
 from app.core.validation_utils import (
     validate_file_exists,
     validate_required_columns,
 )
-from app.core.docx_utils import (
-    find_table_by_text,
-)
+from app.core.docx_utils import find_table_by_text
 
 
 SCHEDULE_TABLE_MARKER = "Horario Teoría nombre_asignatura"
-LAB_TABLE_MARKER = "Horario Laboratorio nombre_asignatura"
+TAAA_LAB_TABLE_MARKER = "Horario Laboratorio Taller de Aprendizaje Automático Aplicado"
 
 
 def load_workbook_sheets(excel_path: str) -> dict[str, pd.DataFrame]:
@@ -26,25 +27,19 @@ def get_available_subjects(config: dict) -> list[str]:
 
 
 def normalize_subject_dataframe(df: pd.DataFrame, config: dict, subject_config: dict) -> pd.DataFrame:
-    common_mapping = config["common_column_mapping"]
-    specific_mapping = subject_config["specific_column_mapping"]
-
     full_mapping = {}
-    full_mapping.update(common_mapping)
-    full_mapping.update(specific_mapping)
+    full_mapping.update(config["common_column_mapping"])
+    full_mapping.update(subject_config["column_mapping"])
 
     df = df.rename(columns=full_mapping)
 
-    # Normalización interna para que el resto del service use nombres genéricos
-    if subject_config["has_catedra"]:
-        catedra_field = subject_config["horarios_catedra_field"]
-        if catedra_field in df.columns:
-            df["HorariosCatedra"] = df[catedra_field]
+    catedra_field = subject_config.get("horarios_catedra_field", "")
+    if catedra_field and catedra_field in df.columns:
+        df["HorariosCatedra"] = df[catedra_field]
 
-    if subject_config["has_lab"]:
-        lab_field = subject_config["horarios_lab_field"]
-        if lab_field in df.columns:
-            df["HorariosLaboratorio"] = df[lab_field]
+    lab_field = subject_config.get("horarios_lab_field", "")
+    if lab_field and lab_field in df.columns:
+        df["HorariosLaboratorio"] = df[lab_field]
 
     disponibles_field = subject_config.get("horarios_disponibles_field", "")
     if disponibles_field and disponibles_field in df.columns:
@@ -52,9 +47,9 @@ def normalize_subject_dataframe(df: pd.DataFrame, config: dict, subject_config: 
 
     return df
 
+
 def get_required_columns(subject_config: dict) -> list[str]:
     required = [
-        "Minor",
         "PrimerNombre",
         "ApellidoPaterno",
         "ApellidoMaterno",
@@ -64,32 +59,28 @@ def get_required_columns(subject_config: dict) -> list[str]:
         "JefeCarrera",
         "DuracionCarrera",
         "AvanceCurricular",
-        "Facultad"
+        "Facultad",
     ]
 
-    if subject_config["has_catedra"]:
+    if subject_config.get("has_catedra", False):
         required.append("HorariosCatedra")
 
-    if subject_config["has_lab"]:
+    if subject_config.get("has_lab", False):
         required.append("HorariosLaboratorio")
 
     return required
+
 
 def is_effectively_empty(df: pd.DataFrame) -> bool:
     if df.empty:
         return True
 
-    temp = df.copy()
-    temp = temp.dropna(how="all")
+    temp = df.copy().dropna(how="all")
+    return temp.empty
 
-    if temp.empty:
-        return True
-
-    return False
 
 def validate_subject_dataframe(df: pd.DataFrame, subject_config: dict):
-    required_columns = get_required_columns(subject_config)
-    validate_required_columns(df, required_columns)
+    validate_required_columns(df, get_required_columns(subject_config))
 
 
 def build_output_path(base_output_folder: str, subject_name: str, row_data: dict) -> Path:
@@ -104,201 +95,216 @@ def build_output_path(base_output_folder: str, subject_name: str, row_data: dict
     return folder / filename
 
 
-def replace_in_paragraphs(doc, row_data: dict, subject_name: str, semestre: str, fecha_documento: str):
+def set_cell_border(cell, color="000000", size="4", space="0"):
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+
+    tcBorders = tcPr.first_child_found_in("w:tcBorders")
+    if tcBorders is None:
+        tcBorders = OxmlElement("w:tcBorders")
+        tcPr.append(tcBorders)
+
+    for edge in ("top", "left", "bottom", "right"):
+        tag = f"w:{edge}"
+        element = tcBorders.find(qn(tag))
+        if element is None:
+            element = OxmlElement(tag)
+            tcBorders.append(element)
+
+        element.set(qn("w:val"), "single")
+        element.set(qn("w:sz"), size)
+        element.set(qn("w:space"), space)
+        element.set(qn("w:color"), color)
+
+
+def replace_in_paragraphs(doc, row_data: dict, semestre: str, fecha_documento: str):
     for paragraph in doc.paragraphs:
         paragraph.text = paragraph.text.replace("fecha_ingreso", safe_str(fecha_documento))
         paragraph.text = paragraph.text.replace("semestre_ingreso", safe_str(semestre))
         paragraph.text = paragraph.text.replace("nombre_jefe_carrera", safe_str(row_data["JefeCarrera"]))
-        paragraph.text = paragraph.text.replace(
-            "carrera_estudiante",
-            f"Jefatura Carrera {safe_str(row_data['Carrera'])}"
-        )
-        paragraph.text = paragraph.text.replace("nombre_asignatura", safe_str(subject_name))
+        paragraph.text = paragraph.text.replace("carrera_estudiante", safe_str(row_data["Carrera"]))
 
 
-def fill_schedule_table_regular(doc, row_data: dict, subject_name: str, subject_config: dict):
+def fill_schedule_table_regular(doc, subject_config: dict):
     horarios_catedra = subject_config["horarios_catedra"]
     horarios_lab = subject_config["horarios_lab"]
-    header_text = subject_config["schedule_header_text"]
 
-    tabla = get_schedule_table(doc, subject_config)
-
-    cabecera_index = None
-    for i, row in enumerate(tabla.rows):
-        if row.cells[0].text.strip() == header_text:
-            cabecera_index = i
-            break
-
-    if cabecera_index is None:
+    tabla = find_table_by_text(doc, SCHEDULE_TABLE_MARKER)
+    if tabla is None:
         raise ValueError(
-            f"No se encontró la fila cabecera de horarios para {subject_name}."
+            "No se encontró la tabla de horarios en la plantilla general. "
+            "Verifica que exista el marcador 'Horario Teoría nombre_asignatura'."
         )
 
-    for i, (hora_catedra, hora_lab) in enumerate(zip(horarios_catedra, horarios_lab)):
+    total_filas = max(len(horarios_catedra), len(horarios_lab))
+    if total_filas == 0:
+        return
+
+    for i in range(total_filas):
+        hora_catedra = safe_str(horarios_catedra[i]) if i < len(horarios_catedra) else ""
+        hora_lab = safe_str(horarios_lab[i]) if i < len(horarios_lab) else ""
+
         nueva_fila = tabla.add_row()
 
-        if len(nueva_fila.cells) != 5:
-            raise ValueError(
-                f"La fila agregada en la plantilla de {subject_name} tiene {len(nueva_fila.cells)} celdas y se esperaban 5."
-            )
+        if len(nueva_fila.cells) < 4:
+            raise ValueError("La fila agregada en la plantilla general no tiene al menos 4 celdas.")
 
-        # Estructura real de proto.docx:
-        # [0] teoría horario
-        # [1] respuesta teoría
-        # [2] celda teoría extendida / apoyo visual
-        # [3] laboratorio horario
-        # [4] respuesta laboratorio
+        nueva_fila.cells[0].text = hora_catedra
+        nueva_fila.cells[1].text = f"respuesta_catedra_{i+1}" if hora_catedra else ""
+        nueva_fila.cells[2].text = hora_lab
+        nueva_fila.cells[3].text = f"respuesta_lab_{i+1}" if hora_lab else ""
 
-        # Fusionar las celdas 1 y 2 para que visualmente queden 4 columnas
-        nueva_fila.cells[1].merge(nueva_fila.cells[2])
-
-        nueva_fila.cells[0].text = safe_str(hora_catedra)
-        nueva_fila.cells[1].text = f"respuesta_catedra_{i+1}"
-        nueva_fila.cells[3].text = safe_str(hora_lab)
-        nueva_fila.cells[4].text = f"respuesta_lab_{i+1}"
-
-        if nueva_fila.cells[0].paragraphs and nueva_fila.cells[0].paragraphs[0].runs:
-            nueva_fila.cells[0].paragraphs[0].runs[0].font.bold = False
+        for j in range(4):
+            cell = nueva_fila.cells[j]
+            if cell.paragraphs:
+                cell.paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+            set_cell_border(cell, color="000000", size="4")
 
 
-def fill_schedule_table_taaa(doc, row_data: dict, subject_name: str, subject_config: dict):
+def fill_schedule_table_taaa(doc, subject_config: dict):
     horarios_lab = subject_config["horarios_lab"]
-    header_text = subject_config["schedule_header_text"]
 
-    tabla = get_schedule_table(doc, subject_config)
-
-    cabecera_index = None
-    for i, row in enumerate(tabla.rows):
-        if row.cells[0].text.strip() == header_text:
-            cabecera_index = i
-            break
-
-    if cabecera_index is None:
+    tabla = find_table_by_text(doc, TAAA_LAB_TABLE_MARKER)
+    if tabla is None:
         raise ValueError(
-            f"No se encontró la fila cabecera de horarios de laboratorio para {subject_name}."
+            "No se encontró la tabla de horarios en la plantilla TAAA. "
+            "Verifica que exista el marcador "
+            "'Horario Laboratorio Taller de Aprendizaje Automático Aplicado'."
         )
+
+    if len(horarios_lab) == 0:
+        return
 
     for i, hora_lab in enumerate(horarios_lab):
         nueva_fila = tabla.add_row()
 
-        if len(nueva_fila.cells) < 5:
-            raise ValueError(
-                f"La fila agregada en la plantilla de {subject_name} no tiene 5 celdas como se esperaba."
-            )
+        if len(nueva_fila.cells) < 4:
+            raise ValueError("La fila agregada en la plantilla TAAA no tiene al menos 4 celdas.")
 
         nueva_fila.cells[0].merge(nueva_fila.cells[1])
-        nueva_fila.cells[0].merge(nueva_fila.cells[2])
-        nueva_fila.cells[3].merge(nueva_fila.cells[4])
+        nueva_fila.cells[2].merge(nueva_fila.cells[3])
 
         nueva_fila.cells[0].text = safe_str(hora_lab)
-        if nueva_fila.cells[0].paragraphs and nueva_fila.cells[0].paragraphs[0].runs:
-            nueva_fila.cells[0].paragraphs[0].runs[0].font.bold = False
+        nueva_fila.cells[2].text = f"respuesta_lab_{i+1}"
 
-        nueva_fila.cells[3].text = f"respuesta_lab_{i+1}"
+        for j in (0, 2):
+            cell = nueva_fila.cells[j]
+            if cell.paragraphs:
+                cell.paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+            set_cell_border(cell, color="000000", size="4")
 
 
-def replace_in_tables_regular(doc, row_data: dict, subject_name: str, subject_config: dict):
+def replace_in_tables_regular(doc, row_data: dict, subject_config: dict):
     horarios_catedra = subject_config["horarios_catedra"]
     horarios_lab = subject_config["horarios_lab"]
+    display_name = subject_config.get("display_name", "")
 
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
-                if "MM" in cell.text:
-                    cell.text = "X" if safe_str(row_data["Minor"]) == "Minor en Ciencia de Datos" else ""
+                text = cell.text
 
-                if "AA" in cell.text:
-                    cell.text = "X" if safe_str(row_data["Minor"]) == "Minor en Ciencia de Datos Avanzado" else ""
-
-                if "primer_nombresegundo_nombre" in cell.text:
+                if "primer_nombresegundo_nombre" in text:
                     cell.text = f"{safe_str(row_data['PrimerNombre'])} {safe_str(row_data.get('SegundoNombre', ''))}".strip()
 
-                if "primer_apellidosegundo_apellido" in cell.text:
+                if "primer_apellidosegundo_apellido" in text:
                     cell.text = f"{safe_str(row_data['ApellidoPaterno'])} {safe_str(row_data['ApellidoMaterno'])}".strip()
 
-                if "rut_estudiante" in cell.text:
+                if "rut_estudiante" in text:
                     cell.text = safe_str(row_data["RUT"])
 
-                if "correo_estudiante" in cell.text:
+                if "correo_estudiante" in text:
                     cell.text = safe_str(row_data["CorreoInstitucional"])
 
-                if "carrera_estudiante" in cell.text:
+                if "carrera_estudiante" in text:
                     cell.text = safe_str(row_data["Carrera"])
 
-                if "facultad_estudiante" in cell.text:
+                if "facultad_estudiante" in text:
                     cell.text = safe_str(row_data["Facultad"])
 
-                if "duracion_carrera" in cell.text:
+                if "duracion_carrera" in text:
                     cell.text = safe_str(row_data["DuracionCarrera"])
 
-                if "nivel_avance" in cell.text:
+                if "nivel_avance" in text:
                     cell.text = safe_str(row_data["AvanceCurricular"])
 
-                if "Horario Teoría nombre_asignatura" in cell.text:
-                    cell.text = f"Horario Teoría {subject_name}"
+                if "Horario Teoría nombre_asignatura" in text:
+                    cell.text = f"Horario Teoría {display_name}"
                     if cell.paragraphs:
                         cell.paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
-                if "Horario Laboratorio nombre_asignatura" in cell.text:
-                    cell.text = f"Horario Laboratorio {subject_name}"
+                if "Horario Laboratorio nombre_asignatura" in text:
+                    cell.text = f"Horario Laboratorio {display_name}"
                     if cell.paragraphs:
                         cell.paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
                 for i in range(len(horarios_catedra)):
                     if f"respuesta_catedra_{i+1}" in cell.text:
-                        cell.text = "X" if safe_str(row_data["HorariosCatedra"]) == safe_str(horarios_catedra[i]) else ""
+                        if safe_str(row_data["HorariosCatedra"]) == safe_str(horarios_catedra[i]):
+                            cell.text = "X"
+                            if cell.paragraphs:
+                                cell.paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+                        else:
+                            cell.text = ""
                         break
 
                 for i in range(len(horarios_lab)):
                     if f"respuesta_lab_{i+1}" in cell.text:
-                        cell.text = "X" if safe_str(row_data["HorariosLaboratorio"]) == safe_str(horarios_lab[i]) else ""
+                        if safe_str(row_data["HorariosLaboratorio"]) == safe_str(horarios_lab[i]):
+                            cell.text = "X"
+                            if cell.paragraphs:
+                                cell.paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+                        else:
+                            cell.text = ""
                         break
 
 
-def replace_in_tables_taaa(doc, row_data: dict, subject_name: str, subject_config: dict):
+def replace_in_tables_taaa(doc, row_data: dict, subject_config: dict):
     horarios_lab = subject_config["horarios_lab"]
+    display_name = subject_config.get("display_name", TAAA_LAB_TABLE_MARKER)
 
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
-                if "MM" in cell.text:
-                    cell.text = "X" if safe_str(row_data["Minor"]) == "Minor en Ciencia de Datos" else ""
+                text = cell.text
 
-                if "AA" in cell.text:
-                    cell.text = "X" if safe_str(row_data["Minor"]) == "Minor en Ciencia de Datos Avanzado" else ""
-
-                if "primer_nombresegundo_nombre" in cell.text:
+                if "primer_nombresegundo_nombre" in text:
                     cell.text = f"{safe_str(row_data['PrimerNombre'])} {safe_str(row_data.get('SegundoNombre', ''))}".strip()
 
-                if "primer_apellidosegundo_apellido" in cell.text:
+                if "primer_apellidosegundo_apellido" in text:
                     cell.text = f"{safe_str(row_data['ApellidoPaterno'])} {safe_str(row_data['ApellidoMaterno'])}".strip()
 
-                if "rut_estudiante" in cell.text:
+                if "rut_estudiante" in text:
                     cell.text = safe_str(row_data["RUT"])
 
-                if "correo_estudiante" in cell.text:
+                if "correo_estudiante" in text:
                     cell.text = safe_str(row_data["CorreoInstitucional"])
 
-                if "carrera_estudiante" in cell.text:
+                if "carrera_estudiante" in text:
                     cell.text = safe_str(row_data["Carrera"])
 
-                if "facultad_estudiante" in cell.text:
+                if "facultad_estudiante" in text:
                     cell.text = safe_str(row_data["Facultad"])
 
-                if "duracion_carrera" in cell.text:
+                if "duracion_carrera" in text:
                     cell.text = safe_str(row_data["DuracionCarrera"])
 
-                if "nivel_avance" in cell.text:
+                if "nivel_avance" in text:
                     cell.text = safe_str(row_data["AvanceCurricular"])
 
-                if "Horario Laboratorio Taller de Aprendizaje Automático Aplicado" in cell.text:
-                    cell.text = "Horario Laboratorio Taller de Aprendizaje Automático Aplicado"
+                if TAAA_LAB_TABLE_MARKER in text:
+                    cell.text = f"Horario Laboratorio {display_name}"
                     if cell.paragraphs:
                         cell.paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
 
                 for i in range(len(horarios_lab)):
                     if f"respuesta_lab_{i+1}" in cell.text:
-                        cell.text = "X" if safe_str(row_data["HorariosLaboratorio"]) == safe_str(horarios_lab[i]) else ""
+                        if safe_str(row_data["HorariosLaboratorio"]) == safe_str(horarios_lab[i]):
+                            cell.text = "X"
+                            if cell.paragraphs:
+                                cell.paragraphs[0].alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+                        else:
+                            cell.text = ""
                         break
 
 
@@ -313,23 +319,22 @@ def insert_page_break_if_needed(doc):
 
 def generate_document_for_row(
     row_data: dict,
-    subject_name: str,
     subject_config: dict,
-    template_path: str,
     semestre: str,
     fecha_documento: str,
     save_path: str,
 ):
+    template_path = subject_config["template_path"]
     doc = Document(template_path)
 
-    if subject_config["has_catedra"]:
-        fill_schedule_table_regular(doc, row_data, subject_name, subject_config)
-        replace_in_tables_regular(doc, row_data, subject_name, subject_config)
+    if subject_config.get("has_catedra", False):
+        fill_schedule_table_regular(doc, subject_config)
+        replace_in_tables_regular(doc, row_data, subject_config)
     else:
-        fill_schedule_table_taaa(doc, row_data, subject_name, subject_config)
-        replace_in_tables_taaa(doc, row_data, subject_name, subject_config)
+        fill_schedule_table_taaa(doc, subject_config)
+        replace_in_tables_taaa(doc, row_data, subject_config)
 
-    replace_in_paragraphs(doc, row_data, subject_name, semestre, fecha_documento)
+    replace_in_paragraphs(doc, row_data, semestre, fecha_documento)
     insert_page_break_if_needed(doc)
 
     try:
@@ -340,16 +345,13 @@ def generate_document_for_row(
     doc.save(save_path)
 
 
-def validate_subject_resources(subject_name: str, config: dict):
-    template_path = config["template_paths"][subject_name]
-    validate_file_exists(template_path, f"plantilla de {subject_name}")
+def validate_subject_resources(subject_name: str, subject_config: dict):
+    validate_file_exists(subject_config["template_path"], f"plantilla de {subject_name}")
 
-    subject_config = config["subjects"][subject_name]
-
-    if subject_config["has_catedra"] and not subject_config["horarios_catedra"]:
+    if subject_config.get("has_catedra", False) and not subject_config.get("horarios_catedra", []):
         raise ValueError(f"La asignatura {subject_name} no tiene horarios de cátedra configurados.")
 
-    if subject_config["has_lab"] and not subject_config["horarios_lab"]:
+    if subject_config.get("has_lab", False) and not subject_config.get("horarios_lab", []):
         raise ValueError(f"La asignatura {subject_name} no tiene horarios de laboratorio configurados.")
 
 
@@ -376,7 +378,7 @@ def process_subject(
     }
 
     subject_config = config["subjects"][subject_name]
-    validate_subject_resources(subject_name, config)
+    validate_subject_resources(subject_name, subject_config)
 
     if is_effectively_empty(df):
         result["skipped"] = True
@@ -388,7 +390,6 @@ def process_subject(
     df = df.dropna(how="all")
 
     result["total"] = len(df)
-    template_path = config["template_paths"][subject_name]
 
     log(f"[{subject_name}] Registros a procesar: {len(df)}")
 
@@ -399,9 +400,7 @@ def process_subject(
             save_path = build_output_path(output_folder, subject_name, row_data)
             generate_document_for_row(
                 row_data=row_data,
-                subject_name=subject_name,
                 subject_config=subject_config,
-                template_path=template_path,
                 semestre=semestre,
                 fecha_documento=fecha_documento,
                 save_path=str(save_path),
@@ -512,13 +511,3 @@ def process_inscripcion(
             log(detail)
 
     return global_result
-
-def get_schedule_table(doc, subject_config: dict):
-    table_index = subject_config["table_index"]
-
-    if len(doc.tables) <= table_index:
-        raise ValueError(
-            f"La plantilla no tiene la tabla esperada en índice {table_index}."
-        )
-
-    return doc.tables[table_index]
