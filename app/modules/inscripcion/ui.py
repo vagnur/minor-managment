@@ -9,15 +9,17 @@ from app.modules.inscripcion.service import (
 )
 
 
-class InscripcionFrame(ctk.CTkFrame):
+class InscripcionFrame(ctk.CTkScrollableFrame):
     def __init__(self, master):
         super().__init__(master)
 
         self.config_data = load_config()
         self.subject_vars = {}
+        self.subject_inputs = {}
+        self.subject_frames = {}
 
         self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(9, weight=1)
+        self.grid_rowconfigure(12, weight=1)
 
         self._build_ui()
 
@@ -94,6 +96,11 @@ class InscripcionFrame(ctk.CTkFrame):
         buttons_row = 1 + ((len(available_subjects) - 1) // columns_per_row) + 1
 
         subjects_buttons = ctk.CTkFrame(subjects_frame, fg_color="transparent")
+        ctk.CTkButton(
+            subjects_buttons,
+            text="Configurar asignaturas",
+            command=self.build_subject_inputs
+        ).pack(side="left", padx=(10, 0))
         subjects_buttons.grid(row=buttons_row, column=0, columnspan=3, padx=10, pady=(8, 10), sticky="w")
 
         ctk.CTkButton(subjects_buttons, text="Seleccionar todas", command=self.select_all_subjects).pack(side="left", padx=(0, 10))
@@ -103,15 +110,15 @@ class InscripcionFrame(ctk.CTkFrame):
         self.save_config_checkbox.grid(row=7, column=0, columnspan=2, padx=10, pady=5, sticky="w")
         self.save_config_checkbox.select()
 
-        buttons_frame = ctk.CTkFrame(self, fg_color="transparent")
-        buttons_frame.grid(row=8, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
+        self.buttons_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.buttons_frame.grid(row=8, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
 
-        ctk.CTkButton(buttons_frame, text="Validar archivo", command=self.run_validation).pack(side="left", padx=(0, 10))
-        ctk.CTkButton(buttons_frame, text="Generar formularios", command=self.run_process).pack(side="left", padx=(0, 10))
-        ctk.CTkButton(buttons_frame, text="Limpiar log", command=self.clear_log).pack(side="left")
+        ctk.CTkButton(self.buttons_frame, text="Validar archivo", command=self.run_validation).pack(side="left", padx=(0, 10))
+        ctk.CTkButton(self.buttons_frame, text="Generar formularios", command=self.run_process).pack(side="left", padx=(0, 10))
+        ctk.CTkButton(self.buttons_frame, text="Limpiar log", command=self.clear_log).pack(side="left")
 
         self.log_box = ctk.CTkTextbox(self)
-        self.log_box.grid(row=9, column=0, columnspan=3, sticky="nsew", padx=10, pady=(0, 10))
+        self.log_box.grid(row=12, column=0, columnspan=3, sticky="nsew", padx=10, pady=(0, 10))
 
     def log(self, text: str):
         self.log_box.insert("end", text + "\n")
@@ -230,12 +237,39 @@ class InscripcionFrame(ctk.CTkFrame):
         self.log("Iniciando proceso de inscripción...")
 
         try:
+            subject_runtime_configs = {}
+            for subject_name in selected_subjects:
+                inputs = self.subject_inputs.get(subject_name, {})
+                subject_config = self.config_data["subjects"][subject_name]
+
+                horarios_catedra = []
+                horarios_lab = []
+
+                if subject_config.get("has_catedra", False):
+                    horarios_catedra = self.parse_schedule_list(inputs["horarios_catedra"].get())
+
+                    if not horarios_catedra:
+                        messagebox.showerror("Error", f"Debes ingresar horarios de cátedra para {subject_name}.")
+                        return
+
+                if subject_config.get("has_lab", False):
+                    horarios_lab = self.parse_schedule_list(inputs["horarios_lab"].get())
+
+                    if not horarios_lab:
+                        messagebox.showerror("Error", f"Debes ingresar horarios de laboratorio para {subject_name}.")
+                        return
+
+                subject_runtime_configs[subject_name] = {
+                    "horarios_catedra": horarios_catedra,
+                    "horarios_lab": horarios_lab,
+                }
             result = process_inscripcion(
                 excel_path=excel_path,
                 output_folder=output_folder,
                 semestre=semestre,
                 fecha_documento=fecha_documento,
                 selected_subjects=selected_subjects,
+                subject_runtime_configs=subject_runtime_configs,
                 config=self.config_data,
                 logger=self.log,
             )
@@ -257,3 +291,62 @@ class InscripcionFrame(ctk.CTkFrame):
         except Exception as e:
             self.log(f"Error general: {e}")
             messagebox.showerror("Error", str(e))
+
+    def parse_schedule_list(self, text: str) -> list:
+        return [
+            item.strip()
+            for item in text.split(";")
+            if item.strip()
+        ]
+
+    def build_subject_inputs(self):
+        for frame in self.subject_frames.values():
+            frame.destroy()
+
+        self.subject_frames = {}
+        self.subject_inputs = {}
+
+        subjects_config = self.config_data["subjects"]
+        start_row = 10
+
+        for i, subject_name in enumerate(self.get_selected_subjects()):
+            subject_config = subjects_config[subject_name]
+            row = start_row + i
+
+            frame = ctk.CTkFrame(self)
+            frame.grid(row=row, column=0, columnspan=3, sticky="ew", padx=10, pady=8)
+            frame.grid_columnconfigure(1, weight=1)
+
+            display_name = subject_config.get("display_name", subject_name)
+
+            ctk.CTkLabel(
+                frame,
+                text=display_name,
+                font=ctk.CTkFont(size=16, weight="bold")
+            ).grid(row=0, column=0, columnspan=2, sticky="w", padx=10, pady=(10, 5))
+
+            entries = {}
+            current_row = 1
+
+            if subject_config.get("has_catedra", False):
+                ctk.CTkLabel(frame, text="Horarios cátedra:").grid(row=current_row, column=0, padx=10, pady=5, sticky="w")
+                catedra_entry = ctk.CTkEntry(frame, placeholder_text="Ej: L7 W7; M7 J7")
+                catedra_entry.grid(row=current_row, column=1, padx=10, pady=5, sticky="ew")
+                entries["horarios_catedra"] = catedra_entry
+                current_row += 1
+
+            if subject_config.get("has_lab", False):
+                ctk.CTkLabel(frame, text="Horarios laboratorio:").grid(row=current_row, column=0, padx=10, pady=5, sticky="w")
+                lab_entry = ctk.CTkEntry(frame, placeholder_text="Ej: L7 W7; M3 W2; J7 V6")
+                lab_entry.grid(row=current_row, column=1, padx=10, pady=5, sticky="ew")
+                entries["horarios_lab"] = lab_entry
+
+            self.subject_frames[subject_name] = frame
+            self.subject_inputs[subject_name] = entries
+
+        next_row = start_row + len(self.get_selected_subjects())
+
+        self.buttons_frame.grid(row=next_row, column=0, columnspan=3, sticky="ew", padx=10, pady=10)
+        self.log_box.grid(row=next_row + 1, column=0, columnspan=3, sticky="nsew", padx=10, pady=(0, 10))
+
+        self.grid_rowconfigure(next_row + 1, weight=1)

@@ -19,7 +19,6 @@ REGULAR_SUBJECT_BASE = {
     "horarios_disponibles_field": "HorariosDisponibles",
 }
 
-
 DEFAULT_CONFIG = {
     "base_output_folder": "output/inscripcion",
 
@@ -45,57 +44,25 @@ DEFAULT_CONFIG = {
         "FPpCD": {
             **deepcopy(REGULAR_SUBJECT_BASE),
             "sheet_name": "FPpCD",
-            "display_name": "Fundamentos de Programación para Ciencia de Datos",
-            "horarios_catedra": [
-                "L3-L4",
-                "M3-M4"
-            ],
-            "horarios_lab": [
-                "J1-J2",
-                "V1-V2"
-            ]
+            "display_name": "Fundamentos de Programación para Ciencia de Datos"
         },
 
         "ECeI": {
             **deepcopy(REGULAR_SUBJECT_BASE),
             "sheet_name": "ECeI",
             "display_name": "Estadística Computacional e Inferencial",
-            "horarios_catedra": [
-                "L5-L6",
-                "M5-M6"
-            ],
-            "horarios_lab": [
-                "J3-J4",
-                "V3-V4"
-            ]
         },
 
         "TIC I": {
             **deepcopy(REGULAR_SUBJECT_BASE),
             "sheet_name": "TIC I",
             "display_name": "Técnicas de Inteligencia Computacional I",
-            "horarios_catedra": [
-                "M1-M2",
-                "X1-X2"
-            ],
-            "horarios_lab": [
-                "J5-J6",
-                "V5-V6"
-            ]
         },
 
         "TIC II": {
             **deepcopy(REGULAR_SUBJECT_BASE),
             "sheet_name": "TIC II",
             "display_name": "Técnicas de Inteligencia Computacional II",
-            "horarios_catedra": [
-                "X3-X4",
-                "J3-J4"
-            ],
-            "horarios_lab": [
-                "V7-V8",
-                "L7-L8"
-            ]
         },
 
         "TAAA": {
@@ -112,12 +79,6 @@ DEFAULT_CONFIG = {
             "horarios_catedra_field": "",
             "horarios_lab_field": "HorariosLaboratorio",
             "horarios_disponibles_field": "HorariosDisponibles",
-            "horarios_catedra": [],
-            "horarios_lab": [
-                "L1-L2",
-                "M1-M2",
-                "X1-X2"
-            ]
         }
     }
 }

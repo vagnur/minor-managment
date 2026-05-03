@@ -1,0 +1,62 @@
+{
+    "base_output_folder": "output/preparacion_notas",
+    "subjects": {
+        "FPpCD": {
+            "code": "10150",
+            "display_name": "Fundamentos de Programación para Ciencia de Datos",
+            "aliases": [
+                "fppcd",
+                "fundamentos"
+            ],
+            "is_taaa": false
+        },
+        "ECeI": {
+            "code": "10151",
+            "display_name": "Estadística Computacional e Inferencial",
+            "aliases": [
+                "ecei",
+                "estadistica",
+                "estadística"
+            ],
+            "is_taaa": false
+        },
+        "TIC I": {
+            "code": "10152",
+            "display_name": "Técnicas de Inteligencia Computacional I",
+            "aliases": [
+                "tic i",
+                "tici"
+            ],
+            "is_taaa": false
+        },
+        "TIC II": {
+            "code": "10153",
+            "display_name": "Técnicas de Inteligencia Computacional II",
+            "aliases": [
+                "tic ii",
+                "ticii",
+                "taic"
+            ],
+            "is_taaa": false
+        },
+        "TAAA": {
+            "code": "10154",
+            "display_name": "Taller de Aprendizaje Automático Aplicado",
+            "aliases": [
+                "taaa",
+                "taller"
+            ],
+            "is_taaa": true
+        }
+    },
+    "source_columns": {
+        "rut_estudiante": "RUT",
+        "nombre": "Nombre Estudiante",
+        "correo": "Correo institucional",
+        "facultad": "Facultad a la que pertenece",
+        "carrera": "Carrera a la que pertenece",
+        "profesor": "Profesor",
+        "seccion_catedra": "Teo",
+        "seccion_laboratorio": "Lab"
+    }
+}

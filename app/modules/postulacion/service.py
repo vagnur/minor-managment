@@ -15,6 +15,17 @@ from app.core.validation_utils import (
 from app.core.docx_utils import find_table_by_text, find_row_index_by_cell_text
 
 
+SUBJECT_DISPLAY_NAMES = {
+    "FPpCD": "Fundamentos de Programación para Ciencia de Datos",
+    "TIC I": "Técnicas de Inteligencia Computacional I"
+}
+
+
+SUBJECT_FOLDER_NAMES = {
+    "FPpCD": "FPpCD",
+    "TIC I": "TIC_I"
+}
+
 COLUMN_RENAME_MAP = {
     "Marca temporal": "Fecha",
     "Dirección de correo electrónico": "Correo",
@@ -100,16 +111,6 @@ def replace_in_paragraphs(doc, row_data: dict, config: dict):
         paragraph.text = paragraph.text.replace("semestre_ingreso", config["semestre"])
         paragraph.text = paragraph.text.replace("nombre_jefe_carrera", safe_str(row_data["JefeCarrera"]))
         paragraph.text = paragraph.text.replace("carrera_estudiante", safe_str(row_data["Carrera"]))
-
-
-from copy import deepcopy
-
-def clone_row_after(table, row_idx: int):
-    tr = table.rows[row_idx]._tr
-    new_tr = deepcopy(tr)
-    tr.addnext(new_tr)
-    return table.rows[row_idx + 1]
-
 
 def fill_schedule_table(doc, row_data: dict, config: dict):
     horarios_catedra = config["horarios_catedra"]
@@ -262,7 +263,13 @@ def build_output_path(base_output_folder: str, row_data: dict) -> Path:
     return folder / filename
 
 
-def process_postulacion(excel_path: str, output_folder: str, config: dict, logger=None) -> dict:
+def process_postulacion(
+    excel_path: str,
+    output_folder: str,
+    sheet_name: str,
+    config: dict,
+    logger=None
+) -> dict:
     def log(msg: str):
         if logger:
             logger(msg)
@@ -277,7 +284,7 @@ def process_postulacion(excel_path: str, output_folder: str, config: dict, logge
         "error_details": []
     }
 
-    df = load_postulacion_dataframe(excel_path, config["sheet_name"])
+    df = load_postulacion_dataframe(excel_path, sheet_name)
     result["total"] = len(df)
     ensure_folder(output_folder)
 
@@ -298,5 +305,67 @@ def process_postulacion(excel_path: str, output_folder: str, config: dict, logge
             detail = f"Error en fila {idx + 1} ({nombre}): {e}"
             result["error_details"].append(detail)
             log(detail)
+
+    return result
+
+def process_postulacion_multi_sheet(
+    excel_path: str,
+    base_output_folder: str,
+    template_path: str,
+    fecha_documento: str,
+    semestre: str,
+    subject_configs: dict,
+    logger=None
+) -> dict:
+    def log(msg: str):
+        if logger:
+            logger(msg)
+
+    validate_file_exists(excel_path, "archivo Excel")
+    validate_file_exists(template_path, "archivo de plantilla Word")
+
+    excel_file = pd.ExcelFile(excel_path)
+    available_sheets = excel_file.sheet_names
+
+    result = {
+        "total": 0,
+        "ok": 0,
+        "errors": 0,
+        "subjects": {}
+    }
+
+    for sheet_name, subject_config in subject_configs.items():
+        if sheet_name not in available_sheets:
+            log(f"Hoja omitida: {sheet_name} no existe en el Excel.")
+            continue
+
+        subject_display_name = SUBJECT_DISPLAY_NAMES.get(sheet_name, sheet_name)
+        subject_folder_name = SUBJECT_FOLDER_NAMES.get(sheet_name, sanitize_filename(sheet_name))
+
+        output_folder = Path(base_output_folder) / subject_folder_name
+
+        config = {
+            "template_path": template_path,
+            "fecha_documento": fecha_documento,
+            "semestre": semestre,
+            "nombre_asignatura": subject_display_name,
+            "horarios_catedra": subject_config.get("horarios_catedra", []),
+            "horarios_lab": subject_config.get("horarios_lab", [])
+        }
+
+        log(f"\nProcesando asignatura: {subject_display_name}")
+
+        subject_result = process_postulacion(
+            excel_path=excel_path,
+            output_folder=str(output_folder),
+            sheet_name=sheet_name,
+            config=config,
+            logger=logger
+        )
+
+        result["total"] += subject_result["total"]
+        result["ok"] += subject_result["ok"]
+        result["errors"] += subject_result["errors"]
+        result["subjects"][sheet_name] = subject_result
 
     return result

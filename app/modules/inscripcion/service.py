@@ -345,20 +345,21 @@ def generate_document_for_row(
     doc.save(save_path)
 
 
-def validate_subject_resources(subject_name: str, subject_config: dict):
+def validate_subject_resources(subject_name: str, subject_config: dict, runtime_config: dict):
     validate_file_exists(subject_config["template_path"], f"plantilla de {subject_name}")
 
-    if subject_config.get("has_catedra", False) and not subject_config.get("horarios_catedra", []):
-        raise ValueError(f"La asignatura {subject_name} no tiene horarios de cátedra configurados.")
+    if subject_config.get("has_catedra", False) and not runtime_config.get("horarios_catedra", []):
+        raise ValueError(f"La asignatura {subject_name} no tiene horarios de cátedra ingresados.")
 
-    if subject_config.get("has_lab", False) and not subject_config.get("horarios_lab", []):
-        raise ValueError(f"La asignatura {subject_name} no tiene horarios de laboratorio configurados.")
+    if subject_config.get("has_lab", False) and not runtime_config.get("horarios_lab", []):
+        raise ValueError(f"La asignatura {subject_name} no tiene horarios de laboratorio ingresados.")
 
 
 def process_subject(
     subject_name: str,
     df: pd.DataFrame,
     config: dict,
+    runtime_config: dict,
     output_folder: str,
     semestre: str,
     fecha_documento: str,
@@ -378,7 +379,13 @@ def process_subject(
     }
 
     subject_config = config["subjects"][subject_name]
-    validate_subject_resources(subject_name, subject_config)
+    subject_config = {
+        **subject_config,
+        "horarios_catedra": runtime_config.get("horarios_catedra", []),
+        "horarios_lab": runtime_config.get("horarios_lab", []),
+    }
+
+    validate_subject_resources(subject_name, subject_config, runtime_config)
 
     if is_effectively_empty(df):
         result["skipped"] = True
@@ -446,6 +453,7 @@ def process_inscripcion(
     semestre: str,
     fecha_documento: str,
     selected_subjects: list[str],
+    subject_runtime_configs: dict,
     config: dict,
     logger=None,
 ) -> dict:
@@ -482,6 +490,7 @@ def process_inscripcion(
                 subject_name=subject_name,
                 df=df,
                 config=config,
+                runtime_config=subject_runtime_configs.get(subject_name, {}),
                 output_folder=output_folder,
                 semestre=semestre,
                 fecha_documento=fecha_documento,

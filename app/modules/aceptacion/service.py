@@ -74,27 +74,14 @@ def format_semestre_texto(semestre: str, anio: str) -> str:
 
 
 def split_full_name(full_name: str) -> tuple[str, str, str | None]:
-    """
-    Regla usada por el módulo:
-    - los últimos 2 tokens son apellidos
-    - todo lo anterior corresponde a nombres
-
-    Retorna:
-    - apellidos
-    - nombres
-    - warning opcional
-    """
     full_name = " ".join(safe_str(full_name).split())
     parts = full_name.split()
 
-    if len(parts) == 0:
-        raise ValueError("Nombre vacío.")
-
-    if len(parts) < 3:
-        warning = f"Nombre con formato no esperado: '{full_name}'"
-        if len(parts) == 1:
-            return "", parts[0], warning
-        return parts[-1], parts[0], warning
+    if len(parts) not in (3, 4):
+        raise ValueError(
+            f"Nombre con formato inválido: '{full_name}'. "
+            "Se esperaba 1 o 2 nombres y 2 apellidos."
+        )
 
     apellidos = " ".join(parts[-2:])
     nombres = " ".join(parts[:-2])

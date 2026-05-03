@@ -5,7 +5,7 @@ from app.modules.aceptacion.config import load_config, save_config
 from app.modules.aceptacion.service import process_aceptacion
 
 
-class AceptacionFrame(ctk.CTkFrame):
+class AceptacionFrame(ctk.CTkScrollableFrame):
     def __init__(self, master):
         super().__init__(master)
 

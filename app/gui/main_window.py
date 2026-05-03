@@ -64,6 +64,9 @@ class MainWindow(ctk.CTk):
         self.current_view = None
         self.show_view("home")
         self.navigation.highlight_selected("home")
+        self.bind_all("<MouseWheel>", self._on_global_mousewheel)
+        self.bind_all("<Button-4>", self._on_global_mousewheel)
+        self.bind_all("<Button-5>", self._on_global_mousewheel)
 
     def _build_views(self):
         views = {}
@@ -88,3 +91,18 @@ class MainWindow(ctk.CTk):
         view = self.views[key]
         view.grid(row=0, column=0, sticky="nsew")
         self.current_view = view
+
+    def _on_global_mousewheel(self, event):
+        widget = event.widget
+
+        while widget is not None:
+            if hasattr(widget, "_parent_canvas"):
+                if event.num == 4:
+                    widget._parent_canvas.yview_scroll(-1, "units")
+                elif event.num == 5:
+                    widget._parent_canvas.yview_scroll(1, "units")
+                else:
+                    widget._parent_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+                return
+
+            widget = widget.master

@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 DEFAULT_CONFIG = {
-    "template_path": "templates/molde_decano.docx",
+    "template_path": "templates/molde_acepta.docx",
     "base_output_folder": "output/aceptacion",
     "output_filename_pattern": "ingreso_minor_ciencia_datos_{semestre}_{anio}.docx",
     "table_headers": [

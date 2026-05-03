@@ -1,0 +1,127 @@
+{
+    "base_output_folder": "output/notas",
+    "regular_template_path": "templates/molde_notas.docx",
+    "taaa_template_path": "templates/molde_notas_TAAA.docx",
+    "subjects": {
+        "FPpCD": {
+            "code": "10150",
+            "display_name": "Fundamentos de Programación para Ciencia de Datos",
+            "aliases": [
+                "fppcd",
+                "fundamentos"
+            ],
+            "has_catedra": true,
+            "has_lab": true,
+            "template_path": "templates/molde_notas.docx",
+            "required_columns": [
+                "Nombre",
+                "RUT Estudiante",
+                "Carrera",
+                "Facultad",
+                "Sección Cátedra",
+                "Profesor Cátedra",
+                "RUT Profesor Cátedra",
+                "Sección Laboratorio",
+                "Nota Cátedra",
+                "Nota Laboratorio",
+                "Promedio"
+            ]
+        },
+        "ECeI": {
+            "code": "10151",
+            "display_name": "Estadística Computacional e Inferencial",
+            "aliases": [
+                "ecei",
+                "estadistica",
+                "estadística"
+            ],
+            "has_catedra": true,
+            "has_lab": true,
+            "template_path": "templates/molde_notas.docx",
+            "required_columns": [
+                "Nombre",
+                "RUT Estudiante",
+                "Carrera",
+                "Facultad",
+                "Sección Cátedra",
+                "Profesor Cátedra",
+                "RUT Profesor Cátedra",
+                "Sección Laboratorio",
+                "Nota Cátedra",
+                "Nota Laboratorio",
+                "Promedio"
+            ]
+        },
+        "TIC I": {
+            "code": "10152",
+            "display_name": "Técnicas de Inteligencia Computacional I",
+            "aliases": [
+                "tic i",
+                "tici"
+            ],
+            "has_catedra": true,
+            "has_lab": true,
+            "template_path": "templates/molde_notas.docx",
+            "required_columns": [
+                "Nombre",
+                "RUT Estudiante",
+                "Carrera",
+                "Facultad",
+                "Sección Cátedra",
+                "Profesor Cátedra",
+                "RUT Profesor Cátedra",
+                "Sección Laboratorio",
+                "Nota Cátedra",
+                "Nota Laboratorio",
+                "Promedio"
+            ]
+        },
+        "TIC II": {
+            "code": "10153",
+            "display_name": "Técnicas de Inteligencia Computacional II",
+            "aliases": [
+                "tic ii",
+                "ticii",
+                "taic"
+            ],
+            "has_catedra": true,
+            "has_lab": true,
+            "template_path": "templates/molde_notas.docx",
+            "required_columns": [
+                "Nombre",
+                "RUT Estudiante",
+                "Carrera",
+                "Facultad",
+                "Sección Cátedra",
+                "Profesor Cátedra",
+                "RUT Profesor Cátedra",
+                "Sección Laboratorio",
+                "Nota Cátedra",
+                "Nota Laboratorio",
+                "Promedio"
+            ]
+        },
+        "TAAA": {
+            "code": "10154",
+            "display_name": "Taller de Aprendizaje Automático Aplicado",
+            "aliases": [
+                "taaa",
+                "taller"
+            ],
+            "has_catedra": false,
+            "has_lab": true,
+            "template_path": "templates/molde_notas_TAAA.docx",
+            "required_columns": [
+                "Nombre",
+                "RUT Estudiante",
+                "Carrera",
+                "Facultad",
+                "Profesor Laboratorio",
+                "RUT Profesor Laboratorio",
+                "Sección Laboratorio",
+                "Nota Laboratorio",
+                "Promedio"
+            ]
+        }
+    }
+}

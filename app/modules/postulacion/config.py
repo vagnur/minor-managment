@@ -4,13 +4,6 @@ from pathlib import Path
 
 DEFAULT_CONFIG = {
     "template_path": "templates/proto.docx",
-    "sheet_name": "Hoja 1",
-    "base_output_folder": "output/formularios TIC I",
-    "fecha_documento": "11/08/2025",
-    "nombre_asignatura": "Técnicas de Inteligencia Computacional I",
-    "semestre": "2-2025",
-    "horarios_catedra": ["L7 W7", "M7 J7"],
-    "horarios_lab": ["L7 W7","M3 W2", "J7 V6",]
 }
 
 

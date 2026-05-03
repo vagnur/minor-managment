@@ -33,15 +33,7 @@
             },
             "horarios_catedra_field": "HorariosCatedra",
             "horarios_lab_field": "HorariosLaboratorio",
-            "horarios_disponibles_field": "HorariosDisponibles",
-            "horarios_catedra": [
-                "L3-L4",
-                "M3-M4"
-            ],
-            "horarios_lab": [
-                "J1-J2",
-                "V1-V2"
-            ]
+            "horarios_disponibles_field": "HorariosDisponibles"
         },
         "ECeI": {
             "sheet_name": "ECeI",
@@ -58,15 +50,7 @@
             },
             "horarios_catedra_field": "HorariosCatedra",
             "horarios_lab_field": "HorariosLaboratorio",
-            "horarios_disponibles_field": "HorariosDisponibles",
-            "horarios_catedra": [
-                "L5-L6",
-                "M5-M6"
-            ],
-            "horarios_lab": [
-                "J3-J4",
-                "V3-V4"
-            ]
+            "horarios_disponibles_field": "HorariosDisponibles"
         },
         "TIC I": {
             "sheet_name": "TIC I",
@@ -83,16 +67,7 @@
             },
             "horarios_catedra_field": "HorariosCatedra",
             "horarios_lab_field": "HorariosLaboratorio",
-            "horarios_disponibles_field": "HorariosDisponibles",
-            "horarios_catedra": [
-                "L7 W7",
-                "M7 J7"
-            ],
-            "horarios_lab": [
-                "L7 W7",
-                "M3 W2",
-                "J7 V6"
-            ]
+            "horarios_disponibles_field": "HorariosDisponibles"
         },
         "TIC II": {
             "sheet_name": "TIC II",
@@ -109,13 +84,7 @@
             },
             "horarios_catedra_field": "HorariosCatedra",
             "horarios_lab_field": "HorariosLaboratorio",
-            "horarios_disponibles_field": "HorariosDisponibles",
-            "horarios_catedra": [
-                "M7 J7"
-            ],
-            "horarios_lab": [
-                "L7 V6"
-            ]
+            "horarios_disponibles_field": "HorariosDisponibles"
         },
         "TAAA": {
             "sheet_name": "TAAA",
@@ -130,12 +99,7 @@
             },
             "horarios_catedra_field": "",
             "horarios_lab_field": "HorariosLaboratorio",
-            "horarios_disponibles_field": "HorariosDisponibles",
-            "horarios_catedra": [],
-            "horarios_lab": [
-                "L7 L8 W7 W8",
-                "M7 M8 J7 J8"
-            ]
+            "horarios_disponibles_field": "HorariosDisponibles"
         }
     }
 }

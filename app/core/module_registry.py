@@ -2,6 +2,8 @@ from app.gui.home_view import HomeView
 from app.modules.postulacion.ui import PostulacionFrame
 from app.modules.aceptacion.ui import AceptacionFrame
 from app.modules.inscripcion.ui import InscripcionFrame
+from app.modules.notas.ui import NotasFrame
+from app.modules.preparacion_notas.ui import PreparacionNotasFrame
 
 
 MODULES = [
@@ -44,8 +46,8 @@ MODULES = [
     {
         "key": "notas",
         "label": "Notas",
-        "view_class": None,
-        "enabled": False,
+        "view_class": NotasFrame,
+        "enabled": True,
     },
     {
         "key": "finalizados",
@@ -53,4 +55,11 @@ MODULES = [
         "view_class": None,
         "enabled": False,
     },
+    {
+        "key": "preparacion_notas",
+        "label": "Preparación de notas",
+        "view_class": PreparacionNotasFrame,
+        "enabled": True,
+    },
+
 ]
