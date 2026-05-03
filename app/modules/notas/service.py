@@ -6,6 +6,12 @@ from docx import Document
 from app.core.file_utils import ensure_folder, sanitize_filename, safe_str
 from app.core.validation_utils import validate_file_exists, validate_required_columns
 
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from app.core.docx_utils import clone_last_row, clear_row_text, set_table_fixed_layout, set_cell_no_wrap
+
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+
 def normalize_text(text: str) -> str:
     return (
         safe_str(text)
@@ -16,6 +22,16 @@ def normalize_text(text: str) -> str:
         .replace(".", "")
     )
 
+def write_cell(cell, value):
+    cell.text = ""
+
+    paragraph = cell.paragraphs[0]
+    paragraph.alignment = WD_PARAGRAPH_ALIGNMENT.CENTER
+
+    run = paragraph.add_run(safe_str(value))
+    run.bold = False  # 👈 importante
+
+    set_cell_border(cell)
 
 def detect_subject_from_filename(filename: str, config: dict) -> str | None:
     normalized_filename = normalize_text(filename)
@@ -209,31 +225,41 @@ def replace_placeholders_in_tables(doc, replacements: dict):
 
 def fill_memo_table_regular(doc, df: pd.DataFrame):
     table = doc.tables[0]
+    set_table_fixed_layout(table)
 
     for idx, (_, row) in enumerate(df.iterrows(), start=1):
-        cells = table.add_row().cells
-        cells[0].text = safe_str(idx)
-        cells[1].text = safe_str(row["Nombre"])
-        cells[2].text = safe_str(row["RUT Estudiante"])
-        cells[3].text = safe_str(row["Carrera"])
-        cells[4].text = safe_str(row["Sección Laboratorio"])
-        cells[5].text = safe_str(row["Nota Cátedra"])
-        cells[6].text = safe_str(row["Nota Laboratorio"])
-        cells[7].text = safe_str(row["Promedio"])
+        new_row = clone_last_row(table)
+        clear_row_text(new_row)
+
+        cells = new_row.cells
+
+        write_cell(cells[0], idx)
+        write_cell(cells[1], row["Nombre"])
+        write_cell(cells[2], row["RUT Estudiante"])
+        write_cell(cells[3], row["Carrera"])
+        write_cell(cells[4], row["Sección Laboratorio"])
+        write_cell(cells[5], row["Nota Cátedra"])
+        write_cell(cells[6], row["Nota Laboratorio"])
+        write_cell(cells[7], row["Promedio"])
 
 
 def fill_memo_table_taaa(doc, df: pd.DataFrame):
     table = doc.tables[0]
+    set_table_fixed_layout(table)
 
     for idx, (_, row) in enumerate(df.iterrows(), start=1):
-        cells = table.add_row().cells
-        cells[0].text = safe_str(idx)
-        cells[1].text = safe_str(row["Nombre"])
-        cells[2].text = safe_str(row["RUT Estudiante"])
-        cells[3].text = safe_str(row["Carrera"])
-        cells[4].text = safe_str(row["Sección Laboratorio"])
-        cells[5].text = safe_str(row["Nota Laboratorio"])
-        cells[6].text = safe_str(row["Promedio"])
+        new_row = clone_last_row(table)
+        clear_row_text(new_row)
+
+        cells = new_row.cells
+
+        write_cell(cells[0], idx)
+        write_cell(cells[1], row["Nombre"])
+        write_cell(cells[2], row["RUT Estudiante"])
+        write_cell(cells[3], row["Carrera"])
+        write_cell(cells[4], row["Sección Laboratorio"])
+        write_cell(cells[5], row["Nota Laboratorio"])
+        write_cell(cells[6], row["Promedio"])
 
 
 def build_memo_output_name(subject_name: str, section_name: str, professor_name: str) -> str:
@@ -369,3 +395,15 @@ def generate_memos(
                 log(f"[ERROR] {detail}")
 
     return result
+
+def set_cell_border(cell):
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+
+    for edge in ('top', 'left', 'bottom', 'right'):
+        element = OxmlElement(f'w:{edge}')
+        element.set(qn('w:val'), 'single')
+        element.set(qn('w:sz'), '8')
+        element.set(qn('w:space'), '0')
+        element.set(qn('w:color'), '000000')
+        tcPr.append(element)
