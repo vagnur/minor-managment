@@ -33,15 +33,17 @@ class PostulacionFrame(ctk.CTkScrollableFrame):
         guide.grid(row=1, column=0, columnspan=3, sticky="ew", padx=10, pady=(0, 10))
         guide.insert(
             "1.0",
-            "Preparación previa del archivo de entrada:\n\n"
-            "1) Descargar las postulaciones desde el formulario Google Forms en formato Excel.\n"
-            "2) Revisar cada postulante para verificar si cumple las condiciones para participar en el Minor.\n"
-            "3) Filtrar únicamente a los postulantes aceptados.\n"
-            "4) Definir manualmente las secciones según disponibilidad de horarios.\n"
-            "5) Ajustar los horarios de cada estudiante dejando un único horario final de cátedra y laboratorio.\n"
-            "6) Consolidar toda la información en un único archivo Excel final.\n\n"
-            "Ese archivo Excel consolidado es el que debe seleccionarse como entrada en este módulo "
-            "para generar automáticamente los formularios Word de postulación."
+            "Qué hace:\n"
+            "Genera los formularios individuales de postulación de las y los estudiantes, "
+            "los cuales posteriormente son enviados a las Jefaturas de Carrera para su revisión y aceptación.\n\n"
+
+            "Entrada:\n"
+            "Archivo Excel consolidado con las y los estudiantes preseleccionados por el Minor "
+            "para ingresar durante el semestre. El archivo debe contener la información final "
+            "de cada estudiante, incluyendo las secciones y horarios correspondientes.\n\n"
+
+            "Resultado:\n"
+            "Formularios Word individuales de postulación, organizados para su envío a las Jefaturas de Carrera."
         )
         guide.configure(state="disabled")
 

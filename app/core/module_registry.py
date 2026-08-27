@@ -6,6 +6,22 @@ from app.modules.notas.ui import NotasFrame
 from app.modules.preparacion_notas.ui import PreparacionNotasFrame
 
 
+NAVIGATION_GROUPS = [
+    {
+        "key": "inicio_semestre",
+        "label": "Inicio de semestre",
+    },
+    {
+        "key": "fin_semestre",
+        "label": "Fin de semestre",
+    },
+    {
+        "key": "utilidades",
+        "label": "Utilidades",
+    },
+]
+
+
 MODULES = [
     {
         "key": "home",
@@ -13,53 +29,59 @@ MODULES = [
         "view_class": HomeView,
         "enabled": True,
     },
+
+    # Inicio de semestre
+    {
+        "key": "filtrado",
+        "label": "Filtrado",
+        "group": "inicio_semestre",
+        "view_class": None,
+        "enabled": False,
+    },
     {
         "key": "postulacion",
         "label": "Postulación",
+        "group": "inicio_semestre",
         "view_class": PostulacionFrame,
         "enabled": True,
     },
     {
         "key": "aceptacion",
         "label": "Aceptación",
+        "group": "inicio_semestre",
         "view_class": AceptacionFrame,
         "enabled": True,
     },
     {
-        "key": "actualizacion",
-        "label": "Actualización de datos",
-        "view_class": None,
-        "enabled": False,
-    },
-    {
-        "key": "filtrado",
-        "label": "Filtrado",
-        "view_class": None,
-        "enabled": False,
-    },
-    {
         "key": "inscripcion",
         "label": "Inscripción",
+        "group": "inicio_semestre",
         "view_class": InscripcionFrame,
+        "enabled": True,
+    },
+
+    # Fin de semestre
+    {
+        "key": "preparacion_notas",
+        "label": "Preparación de notas",
+        "group": "fin_semestre",
+        "view_class": PreparacionNotasFrame,
         "enabled": True,
     },
     {
         "key": "notas",
         "label": "Notas",
+        "group": "fin_semestre",
         "view_class": NotasFrame,
         "enabled": True,
     },
+
+    # Utilidades
     {
-        "key": "finalizados",
-        "label": "Finalizados",
+        "key": "actualizacion",
+        "label": "Actualización de datos",
+        "group": "utilidades",
         "view_class": None,
         "enabled": False,
     },
-    {
-        "key": "preparacion_notas",
-        "label": "Preparación de notas",
-        "view_class": PreparacionNotasFrame,
-        "enabled": True,
-    },
-
 ]

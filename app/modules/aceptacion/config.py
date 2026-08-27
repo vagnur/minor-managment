@@ -17,6 +17,7 @@ DEFAULT_CONFIG = {
     ],
     "column_mapping": {
         "RUT": "RUT",
+        "Nombre": "NombreEstudiante",
         "Nombre Estudiante": "NombreEstudiante",
         "Carrera a la que pertenece": "Carrera",
         "Facultad a la que pertenece": "Facultad"

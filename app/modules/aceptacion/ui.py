@@ -24,15 +24,20 @@ class AceptacionFrame(ctk.CTkScrollableFrame):
         )
         title.grid(row=0, column=0, columnspan=3, sticky="w", padx=10, pady=(10, 5))
 
-        guide = ctk.CTkTextbox(self, height=150, font=ctk.CTkFont(size=15))
+        guide = ctk.CTkTextbox(self, height=180, font=ctk.CTkFont(size=15))
         guide.grid(row=1, column=0, columnspan=3, sticky="ew", padx=10, pady=(0, 10))
         guide.insert(
             "1.0",
-            "Preparación previa:\n\n"
-            "1) Contar con el Excel final de estudiantes aceptados.\n"
-            "2) Verificar que cada fila corresponda a un estudiante aceptado.\n"
-            "3) Confirmar que el archivo contenga RUT, nombre completo, carrera y facultad.\n"
-            "4) Ejecutar este módulo para generar el documento consolidado de ingreso al Minor.\n"
+            "Qué hace:\n"
+            "Genera el documento consolidado necesario para formalizar vía STD el ingreso "
+            "de las y los estudiantes aceptados por el Minor y sus Jefaturas de Carrera.\n\n"
+
+            "Entrada:\n"
+            "Archivo Excel con todas y todos los estudiantes nuevos aceptados durante el semestre. "
+            "Debe incluir tanto a quienes ingresan por FPpCD como a quienes ingresan por TIC I.\n\n"
+
+            "Resultado:\n"
+            "Documento Word consolidado de aceptación para su envío vía STD."
         )
         guide.configure(state="disabled")
 

@@ -6,77 +6,70 @@ El sistema centraliza y automatiza procesos clave del Minor, reemplazando script
 
 ---
 
-## Estado del proyecto
-
-Versión actual: v0.3 (en desarrollo)
-
-Módulos implementados:
-- Postulación
-- Aceptación
-- Inscripción
-
-Módulos en desarrollo / mejora:
-- Filtrado
-- Actualización de datos
-- Procesamiento de notas
-- Identificación de finalizados
-
----
-
-## Descripción general
-
-La herramienta permite procesar información proveniente de formularios (Google Forms) en formato Excel y generar automáticamente documentos institucionales en Word (.docx), reduciendo significativamente el trabajo manual de la coordinación del Minor.
-
-Cada módulo responde a una etapa del flujo real del programa:
-- Postulación → generación de formularios por estudiante
-- Aceptación → consolidación de estudiantes aceptados
-- Inscripción → formalización de asignaturas por estudiante
-
----
-
-## Funcionalidades principales
-
-### Postulación
-- procesamiento de Excel consolidado desde Google Forms
-- generación de formularios individuales en Word
-- organización automática por carrera
-- validación de estructura de datos
-
-### Aceptación
-- generación de documento institucional de aceptación
-- normalización de nombres y RUT
-- consolidación de estudiantes en tabla única
-- compatibilidad con formato institucional
-
-### Inscripción
-- procesamiento por asignatura desde Excel con múltiples hojas
-- generación de formularios de inscripción en Word
-- soporte para distintas estructuras (caso especial TAAA)
-- manejo dinámico de horarios (cátedra / laboratorio)
-- generación automática de tablas con formato consistente
-
----
-
-## Uso general
-
-1. Exportar respuestas de Google Forms a Excel  
-2. Seleccionar el módulo correspondiente en la aplicación  
-3. Configurar parámetros (semestre, fecha, asignaturas)  
-4. Ejecutar el proceso  
-5. Revisar documentos generados en carpeta de salida  
-
----
-
 ## Requisitos
 
 - Python 3.10+
-- Dependencias principales:
-  - pandas
-  - python-docx
-  - openpyxl
-  - customtkinter
+- Dependencias definidas en `requirements.txt`
 
-Instalación sugerida:
+Instalación de dependencias:
 
 ```bash
 pip install -r requirements.txt
+```
+
+---
+
+## Instalación y ejecución
+
+Clonar el repositorio:
+
+```bash
+git clone https://github.com/vagnur/minor-managment.git
+```
+
+Acceder a la carpeta del proyecto:
+
+```bash
+cd minor-managment
+```
+
+Ejecutar la aplicación desde la raíz del proyecto:
+
+```bash
+python3 main.py
+```
+
+---
+
+## Uso
+
+Los procesos disponibles se encuentran organizados en el menú lateral de acuerdo con las distintas etapas de gestión del Minor:
+
+- **Inicio de semestre**
+- **Fin de semestre**
+- **Utilidades**
+
+Cada módulo incluye una guía que indica:
+
+- qué proceso realiza;
+- qué archivo o carpeta requiere como entrada;
+- qué archivos genera como resultado;
+- los pasos necesarios para su ejecución, cuando corresponde.
+
+---
+
+## Estructura del proyecto
+
+```text
+minor-managment/
+├── app/
+│   ├── core/          # Componentes y configuración general
+│   ├── gui/           # Ventana principal y navegación
+│   └── modules/       # Módulos funcionales
+│
+├── config/            # Archivos de configuración de los procesos
+├── templates/         # Plantillas institucionales utilizadas por los módulos
+├── main.py            # Punto de entrada de la aplicación
+├── requirements.txt   # Dependencias de Python
+└── CHANGELOG.md       # Registro de cambios del proyecto
+```

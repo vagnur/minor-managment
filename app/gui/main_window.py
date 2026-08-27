@@ -1,7 +1,7 @@
 import customtkinter as ctk
 
 from app.gui.navigation import NavigationPanel
-from app.core.module_registry import MODULES
+from app.core.module_registry import MODULES, NAVIGATION_GROUPS
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
@@ -51,7 +51,12 @@ class MainWindow(ctk.CTk):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        self.navigation = NavigationPanel(self, self.show_view, MODULES)
+        self.navigation = NavigationPanel(
+            self,
+            self.show_view,
+            MODULES,
+            NAVIGATION_GROUPS
+        )
         self.navigation.grid(row=0, column=0, sticky="nsew")
 
         self.content_frame = ctk.CTkFrame(self, corner_radius=0)

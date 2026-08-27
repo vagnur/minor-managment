@@ -31,16 +31,20 @@ class InscripcionFrame(ctk.CTkScrollableFrame):
         )
         title.grid(row=0, column=0, columnspan=3, sticky="w", padx=10, pady=(10, 5))
 
-        guide = ctk.CTkTextbox(self, height=145, font=ctk.CTkFont(size=15))
+        guide = ctk.CTkTextbox(self, height=185, font=ctk.CTkFont(size=15))
         guide.grid(row=1, column=0, columnspan=3, sticky="ew", padx=10, pady=(0, 10))
         guide.insert(
             "1.0",
-            "Preparación previa:\n\n"
-            "1) Contar con el Excel final de inscripción, con una hoja por asignatura.\n"
-            "2) Verificar que cada hoja tenga la estructura esperada y los horarios finales asignados.\n"
-            "3) Seleccionar una o más asignaturas a procesar.\n"
-            "4) Validar el archivo si se desea revisar hojas faltantes o vacías.\n"
-            "5) Generar los formularios para firma de jefaturas de carrera.\n"
+            "Qué hace:\n"
+            "Genera los formularios individuales de inscripción de asignaturas de las y los estudiantes, "
+            "los cuales posteriormente son enviados a las Jefaturas de Carrera.\n\n"
+
+            "Entrada:\n"
+            "Archivo Excel consolidado con las inscripciones del semestre. Debe contener una hoja "
+            "por asignatura con las y los estudiantes inscritos, sus secciones y horarios correspondientes.\n\n"
+
+            "Resultado:\n"
+            "Formularios Word individuales de inscripción para su envío a las Jefaturas de Carrera."
         )
         guide.configure(state="disabled")
 

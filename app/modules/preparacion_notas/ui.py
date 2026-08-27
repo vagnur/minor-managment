@@ -29,20 +29,32 @@ class PreparacionNotasFrame(ctk.CTkScrollableFrame):
         )
         title.grid(row=0, column=0, columnspan=3, sticky="w", padx=10, pady=(10, 5))
 
-        guide = ctk.CTkTextbox(self, height=130, font=ctk.CTkFont(size=15))
+        guide = ctk.CTkTextbox(self, height=270, font=ctk.CTkFont(size=15))
         guide.grid(row=1, column=0, columnspan=3, sticky="ew", padx=10, pady=(0, 10))
         guide.insert(
             "1.0",
-            "Preparación previa:\n\n"
-            "1) Seleccionar carpeta con los Excel originales de notas.\n"
-            "2) Seleccionar carpeta de salida.\n"
-            "3) Cargar secciones detectadas.\n"
-            "4) Ingresar el RUT del profesor correspondiente a cada sección.\n"
-            "5) Generar los Excel preparados para el módulo de Notas.\n"
+            "Qué hace:\n"
+            "Prepara los archivos de notas de cada sección para que posteriormente puedan ser procesados "
+            "por el módulo Notas. Cada archivo generado incorpora la información de la asignatura, "
+            "docente y estudiantes, junto con las columnas necesarias para notas de cátedra y/o laboratorio.\n\n"
+
+            "Entrada:\n"
+            "Carpeta que contiene los Excel consolidados de cada curso. Cada archivo debe contener "
+            "las distintas secciones del curso organizadas en pestañas.\n\n"
+
+            "Pasos:\n"
+            "1) Seleccionar la carpeta de cursos.\n"
+            "2) Presionar «Cargar secciones».\n"
+            "3) Ingresar el RUT de las y los profesores detectados.\n"
+            "4) Presionar «Generar Excel de notas».\n\n"
+
+            "Resultado:\n"
+            "Archivos Excel de notas por sección, preparados para completar las notas y utilizarlos "
+            "posteriormente en el módulo Notas."
         )
         guide.configure(state="disabled")
 
-        ctk.CTkLabel(self, text="Carpeta originales:").grid(row=2, column=0, padx=10, pady=5, sticky="w")
+        ctk.CTkLabel(self, text="Carpeta de cursos:").grid(row=2, column=0, padx=10, pady=5, sticky="w")
         self.source_entry = ctk.CTkEntry(self)
         self.source_entry.grid(row=2, column=1, padx=10, pady=5, sticky="ew")
         ctk.CTkButton(self, text="Buscar", command=self.select_source_folder).grid(row=2, column=2, padx=10, pady=5)
@@ -68,7 +80,7 @@ class PreparacionNotasFrame(ctk.CTkScrollableFrame):
 
         ctk.CTkButton(
             buttons_frame,
-            text="Generar Excel preparados",
+            text="Generar Excel de notas",
             command=self.run_process
         ).pack(side="left", padx=(0, 10))
 
@@ -108,7 +120,7 @@ class PreparacionNotasFrame(ctk.CTkScrollableFrame):
         self.log_box.delete("1.0", "end")
 
     def select_source_folder(self):
-        path = filedialog.askdirectory(title="Seleccionar carpeta con Excel originales")
+        path = filedialog.askdirectory(title="Seleccionar carpeta de cursos")
         if path:
             self.source_entry.delete(0, "end")
             self.source_entry.insert(0, path)

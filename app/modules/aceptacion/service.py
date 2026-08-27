@@ -54,23 +54,32 @@ def normalize_facultad(facultad: str) -> str:
     facultad = safe_str(facultad).strip()
 
     replacements = {
+        "Facultad de Ciencia": "Ciencia",
+        "Facultad de Ciencias Médicas": "Ciencias Médicas",
+        "Facultad de Derecho": "Derecho",
+        "Facultad de Administración y Economía": "Administración y Economía",
+        "Facultad de Humanidades": "Humanidades",
         "Facultad de Ingeniería": "Ingeniería",
-        "Ingeniería": "Ingeniería",
+        "Facultad de Química y Biología": "Química y Biología",
+        "Facultad Tecnológica": "Tecnológica",
+        "Facultad de Arquitectura y Ambiente Construido": "Arquitectura y Ambiente Construido",
     }
 
-    return replacements.get(facultad, facultad)
+    if facultad not in replacements:
+        raise ValueError(f"Facultad no reconocida: '{facultad}'")
+
+    return replacements[facultad]
 
 
-def format_semestre_texto(semestre: str, anio: str) -> str:
+def format_semestre_texto(semestre: str) -> str:
     semestre = safe_str(semestre).strip()
 
     mapping = {
-        "1": "Primer Semestre de",
-        "2": "Segundo Semestre de",
+        "1": "Primer Semestre",
+        "2": "Segundo Semestre",
     }
 
-    prefix = mapping.get(semestre, f"Semestre {semestre} de")
-    return f"{prefix} {safe_str(anio)}"
+    return mapping.get(semestre, f"Semestre {semestre}")
 
 
 def split_full_name(full_name: str) -> tuple[str, str, str | None]:
@@ -227,7 +236,7 @@ def process_aceptacion(
     table = validate_template_structure(doc, config)
 
     replacements = {
-        "SEMESTRE_INGRESO": format_semestre_texto(semestre, anio),
+        "SEMESTRE_INGRESO": format_semestre_texto(semestre),
         "AÑO_SEMESTRE": safe_str(anio),
         "INICIALES_DIRECTOR_DEPA": safe_str(iniciales_director),
         "INICIALES_COORDINADOR_MINOR": safe_str(iniciales_coordinador),

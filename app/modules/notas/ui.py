@@ -28,16 +28,21 @@ class NotasFrame(ctk.CTkScrollableFrame):
         )
         title.grid(row=0, column=0, columnspan=3, sticky="w", padx=10, pady=(10, 5))
 
-        guide = ctk.CTkTextbox(self, height=135, font=ctk.CTkFont(size=15))
+        guide = ctk.CTkTextbox(self, height=220, font=ctk.CTkFont(size=15))
         guide.grid(row=1, column=0, columnspan=3, sticky="ew", padx=10, pady=(0, 10))
         guide.insert(
             "1.0",
-            "Preparación previa:\n\n"
-            "1) Seleccionar la carpeta que contiene los Excel de notas por sección/asignatura.\n"
-            "2) Seleccionar la carpeta de salida.\n"
-            "3) Completar semestre, fecha del documento y nombre de la vicedecana.\n"
-            "4) Validar carpeta para revisar archivos detectados.\n"
-            "5) Generar Excel por facultad o memorándums internos de notas.\n"
+            "Qué hace:\n"
+            "Genera la documentación final necesaria para informar las notas obtenidas por las y los estudiantes.\n\n"
+
+            "Entrada:\n"
+            "Carpeta con los Excel de notas generados previamente en Preparación de notas. "
+            "Debe existir un archivo por cada sección/asignatura, con las notas de las y los estudiantes ya completadas.\n\n"
+
+            "Resultados:\n"
+            "• Memorándums de notas por sección, para su envío a Vicedecanato de Ingeniería.\n"
+            "• Excel consolidados por Facultad, para su envío a los respectivos Registros Curriculares "
+            "y el ingreso de notas de estudiantes pertenecientes a otras Facultades."
         )
         guide.configure(state="disabled")
 
