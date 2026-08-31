@@ -18,25 +18,46 @@ class PlaceholderView(ctk.CTkFrame):
         title = ctk.CTkLabel(
             self,
             text=module_name,
-            font=ctk.CTkFont(size=26, weight="bold")
+            font=ctk.CTkFont(size=26, weight="bold"),
         )
-        title.grid(row=0, column=0, padx=20, pady=(30, 10), sticky="w")
+        title.grid(
+            row=0,
+            column=0,
+            padx=20,
+            pady=(30, 10),
+            sticky="w",
+        )
 
         message = ctk.CTkLabel(
             self,
             text="Módulo en construcción.",
-            font=ctk.CTkFont(size=18)
+            font=ctk.CTkFont(size=18),
         )
-        message.grid(row=1, column=0, padx=20, pady=(0, 10), sticky="w")
+        message.grid(
+            row=1,
+            column=0,
+            padx=20,
+            pady=(0, 10),
+            sticky="w",
+        )
 
         detail = ctk.CTkLabel(
             self,
-            text="Este espacio ya está reservado dentro del programa para integrar esta funcionalidad.",
+            text=(
+                "Este espacio ya está reservado dentro del programa "
+                "para integrar esta funcionalidad."
+            ),
             font=ctk.CTkFont(size=15),
             wraplength=700,
-            justify="left"
+            justify="left",
         )
-        detail.grid(row=2, column=0, padx=20, pady=(0, 20), sticky="w")
+        detail.grid(
+            row=2,
+            column=0,
+            padx=20,
+            pady=(0, 20),
+            sticky="w",
+        )
 
 
 class MainWindow(ctk.CTk):
@@ -55,20 +76,32 @@ class MainWindow(ctk.CTk):
             self,
             self.show_view,
             MODULES,
-            NAVIGATION_GROUPS
+            NAVIGATION_GROUPS,
         )
-        self.navigation.grid(row=0, column=0, sticky="nsew")
+        self.navigation.grid(
+            row=0,
+            column=0,
+            sticky="nsew",
+        )
 
-        self.content_frame = ctk.CTkFrame(self, corner_radius=0)
-        self.content_frame.grid(row=0, column=1, sticky="nsew")
+        self.content_frame = ctk.CTkFrame(
+            self,
+            corner_radius=0,
+        )
+        self.content_frame.grid(
+            row=0,
+            column=1,
+            sticky="nsew",
+        )
         self.content_frame.grid_columnconfigure(0, weight=1)
         self.content_frame.grid_rowconfigure(0, weight=1)
 
         self.views = self._build_views()
-
         self.current_view = None
+
         self.show_view("home")
         self.navigation.highlight_selected("home")
+
         self.bind_all("<MouseWheel>", self._on_global_mousewheel)
         self.bind_all("<Button-4>", self._on_global_mousewheel)
         self.bind_all("<Button-5>", self._on_global_mousewheel)
@@ -82,10 +115,22 @@ class MainWindow(ctk.CTk):
             view_class = module["view_class"]
             enabled = module["enabled"]
 
-            if enabled and view_class is not None:
+            if key == "home" and enabled and view_class is not None:
+                views[key] = view_class(
+                    self.content_frame,
+                    on_select=self.navigation.select,
+                    modules=MODULES,
+                    groups=NAVIGATION_GROUPS,
+                )
+
+            elif enabled and view_class is not None:
                 views[key] = view_class(self.content_frame)
+
             else:
-                views[key] = PlaceholderView(self.content_frame, label)
+                views[key] = PlaceholderView(
+                    self.content_frame,
+                    label,
+                )
 
         return views
 
@@ -94,7 +139,11 @@ class MainWindow(ctk.CTk):
             self.current_view.grid_forget()
 
         view = self.views[key]
-        view.grid(row=0, column=0, sticky="nsew")
+        view.grid(
+            row=0,
+            column=0,
+            sticky="nsew",
+        )
         self.current_view = view
 
     def _on_global_mousewheel(self, event):
@@ -107,7 +156,10 @@ class MainWindow(ctk.CTk):
                 elif event.num == 5:
                     widget._parent_canvas.yview_scroll(1, "units")
                 else:
-                    widget._parent_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+                    widget._parent_canvas.yview_scroll(
+                        int(-1 * (event.delta / 120)),
+                        "units",
+                    )
                 return
 
             widget = widget.master

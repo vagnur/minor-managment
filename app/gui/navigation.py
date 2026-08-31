@@ -22,20 +22,19 @@ class NavigationPanel(ctk.CTkFrame):
         title = ctk.CTkLabel(
             self,
             text="Minor CD",
-            font=ctk.CTkFont(size=24, weight="bold")
+            font=ctk.CTkFont(size=24, weight="bold"),
         )
         title.grid(
             row=0,
             column=0,
             padx=20,
             pady=(20, 20),
-            sticky="w"
+            sticky="w",
         )
 
         # ---------------------------------------------------------
         # Inicio
         # ---------------------------------------------------------
-
         home_module = next(
             module for module in self.modules
             if module["key"] == "home"
@@ -45,13 +44,12 @@ class NavigationPanel(ctk.CTkFrame):
             parent=self,
             module=home_module,
             row=1,
-            padx=15
+            padx=15,
         )
 
         # ---------------------------------------------------------
         # Grupos
         # ---------------------------------------------------------
-
         current_row = 2
 
         for group in self.groups:
@@ -66,33 +64,29 @@ class NavigationPanel(ctk.CTkFrame):
                 text_color=("black", "white"),
                 hover_color=("gray85", "gray20"),
                 font=ctk.CTkFont(weight="bold"),
-                command=lambda key=group_key: self.toggle_group(key)
+                command=lambda key=group_key: self.toggle_group(key),
             )
-
             group_button.grid(
                 row=current_row,
                 column=0,
                 padx=15,
                 pady=(10, 2),
-                sticky="ew"
+                sticky="ew",
             )
 
             self.group_buttons[group_key] = group_button
-
             current_row += 1
 
             group_frame = ctk.CTkFrame(
                 self,
                 fg_color="transparent",
-                corner_radius=0
+                corner_radius=0,
             )
-
             group_frame.grid_columnconfigure(0, weight=1)
-
             group_frame.grid(
                 row=current_row,
                 column=0,
-                sticky="ew"
+                sticky="ew",
             )
 
             self.group_frames[group_key] = group_frame
@@ -108,15 +102,12 @@ class NavigationPanel(ctk.CTkFrame):
                     parent=group_frame,
                     module=module,
                     row=module_row,
-                    padx=(30, 15)
+                    padx=(30, 15),
                 )
 
+            # Todos los grupos parten compactados.
             group_frame.grid_remove()
-
             current_row += 1
-
-        # Inicio de semestre abierto por defecto
-        self._open_group("inicio_semestre")
 
     def _create_module_button(self, parent, module, row, padx):
         button = ctk.CTkButton(
@@ -127,15 +118,14 @@ class NavigationPanel(ctk.CTkFrame):
             fg_color="transparent",
             text_color=("black", "white"),
             hover_color=("gray85", "gray20"),
-            command=lambda module_key=module["key"]: self.select(module_key)
+            command=lambda module_key=module["key"]: self.select(module_key),
         )
-
         button.grid(
             row=row,
             column=0,
             padx=padx,
             pady=4,
-            sticky="ew"
+            sticky="ew",
         )
 
         self.buttons[module["key"]] = button
@@ -168,7 +158,6 @@ class NavigationPanel(ctk.CTkFrame):
         self.group_buttons[group_key].configure(
             text=f"▾ {group['label']}"
         )
-
         self.active_group = group_key
 
     def _close_group(self, group_key: str):
@@ -190,6 +179,23 @@ class NavigationPanel(ctk.CTkFrame):
         if self.active_group == group_key:
             self.active_group = None
 
+    def close_all_groups(self):
+        """Compacta completamente el menú lateral."""
+        for group_key in self.group_frames:
+            self.group_frames[group_key].grid_remove()
+
+            group = next(
+                group
+                for group in self.groups
+                if group["key"] == group_key
+            )
+
+            self.group_buttons[group_key].configure(
+                text=f"▸ {group['label']}"
+            )
+
+        self.active_group = None
+
     def select(self, key: str):
         self.highlight_selected(key)
         self.on_select(key)
@@ -201,12 +207,17 @@ class NavigationPanel(ctk.CTkFrame):
                 for module in self.modules
                 if module["key"] == selected_key
             ),
-            None
+            None,
         )
+
+        # Inicio representa el nivel superior: al volver a él,
+        # el menú lateral queda completamente compactado.
+        if selected_key == "home":
+            self.close_all_groups()
 
         # Si el módulo pertenece a un grupo cerrado,
         # abrir automáticamente ese grupo.
-        if selected_module is not None:
+        elif selected_module is not None:
             group_key = selected_module.get("group")
 
             if group_key is not None and group_key != self.active_group:
@@ -216,10 +227,10 @@ class NavigationPanel(ctk.CTkFrame):
             if key == selected_key:
                 button.configure(
                     fg_color=("gray75", "gray25"),
-                    text_color=("black", "white")
+                    text_color=("black", "white"),
                 )
             else:
                 button.configure(
                     fg_color="transparent",
-                    text_color=("black", "white")
+                    text_color=("black", "white"),
                 )

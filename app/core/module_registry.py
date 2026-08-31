@@ -4,6 +4,7 @@ from app.modules.aceptacion.ui import AceptacionFrame
 from app.modules.inscripcion.ui import InscripcionFrame
 from app.modules.notas.ui import NotasFrame
 from app.modules.preparacion_notas.ui import PreparacionNotasFrame
+from app.modules.actualizacion.ui import ActualizacionFrame
 
 
 NAVIGATION_GROUPS = [
@@ -81,7 +82,7 @@ MODULES = [
         "key": "actualizacion",
         "label": "Actualización de datos",
         "group": "utilidades",
-        "view_class": None,
-        "enabled": False,
+        "view_class": ActualizacionFrame,
+        "enabled": True,
     },
 ]
